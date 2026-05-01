@@ -26,6 +26,15 @@ test('assets/app.js exists', () => {
   assert.equal(fs.existsSync(appJsPath), true, 'assets/app.js should exist');
 });
 
+test('index navigation includes required links', () => {
+  const indexPath = path.join(ROOT, 'index.html');
+  const content = fs.readFileSync(indexPath, 'utf8');
+
+  assert.match(content, /href=["']\.\/phases\/discovery\.html["']/);
+  assert.match(content, /href=["']\.\/simulation\.html["']/);
+  assert.match(content, /href=["']\.\/artifacts\.html["']/);
+});
+
 for (const page of requiredPages) {
   test(`${page.path} exists and includes nav root and exact app script`, () => {
     const fullPath = path.join(ROOT, page.path);
