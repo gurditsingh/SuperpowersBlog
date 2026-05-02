@@ -7,6 +7,19 @@ const ROOT = path.resolve(__dirname, '..');
 const siteData = require('../assets/data/site.json');
 const { buildNavigationLinks, currentPathFromLocation, renderNavigation } = require('../assets/app.js');
 
+const expectedLifecycle = [
+  'Brainstorm / Design',
+  'Specification',
+  'Workspace Isolation',
+  'Implementation Planning',
+  'Execution',
+  'Test-Driven Development',
+  'Systematic Debugging',
+  'Code Review',
+  'Verification',
+  'Branch Completion',
+];
+
 function collectHtmlPages(dir = ROOT) {
   return fs
     .readdirSync(dir, { withFileTypes: true })
@@ -90,18 +103,26 @@ test('generated phase navigation uses data-nav-base prefix and marks current pha
   );
 });
 
+test('site navigation uses verified Superpowers lifecycle labels', () => {
+  const lifecycleLabels = siteData.pages
+    .filter((page) => page.path.startsWith('phases/'))
+    .map((page) => page.label);
+
+  assert.deepEqual(lifecycleLabels, expectedLifecycle);
+});
+
 test('rendered navigation includes aria-current only on the current page', () => {
   const markup = renderNavigation({
     pages: siteData.pages,
     base: '..',
     currentPath: 'phases/discovery.html',
-    pageLabel: 'Discovery',
+    pageLabel: 'Specification',
   });
 
   assert.match(markup, /<a href="\.\.\/index\.html">Home<\/a>/);
   assert.match(markup, /<a href="\.\.\/simulation\.html">Simulation<\/a>/);
   assert.match(markup, /<a href="\.\.\/artifacts\.html">Artifacts<\/a>/);
-  assert.match(markup, /<a href="\.\.\/phases\/discovery\.html" aria-current="page">Discovery<\/a>/);
+  assert.match(markup, /<a href="\.\.\/phases\/discovery\.html" aria-current="page">Specification<\/a>/);
   assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
 });
 

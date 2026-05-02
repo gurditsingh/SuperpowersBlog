@@ -7,6 +7,19 @@ const ROOT = path.resolve(__dirname, '..');
 const PHASES_PATH = path.join(ROOT, 'assets/data/phases.json');
 const { bootstrapPhaseRoot, renderArtifactsPage, renderPhasePage } = require('../assets/app.js');
 
+const expectedLifecycle = [
+  'Brainstorm / Design',
+  'Specification',
+  'Workspace Isolation',
+  'Implementation Planning',
+  'Execution',
+  'Test-Driven Development',
+  'Systematic Debugging',
+  'Code Review',
+  'Verification',
+  'Branch Completion',
+];
+
 const expectedSlugs = [
   'fundamentals',
   'discovery',
@@ -216,6 +229,35 @@ function collectText(value) {
   }
   return '';
 }
+
+test('phase data uses Superpowers-first lifecycle structure', () => {
+  const phases = readJson(PHASES_PATH);
+
+  assert.deepEqual(phases.map((phase) => phase.title), expectedLifecycle);
+  for (const phase of phases) {
+    for (const field of [
+      'slug',
+      'title',
+      'kicker',
+      'goal',
+      'skillMapping',
+      'artifactEvidence',
+      'failurePrevented',
+      'example',
+      'inputs',
+      'outputs',
+      'antipatterns',
+      'doneCriteria',
+    ]) {
+      assert.ok(Object.hasOwn(phase, field), `${phase.slug} should include ${field}`);
+    }
+    assert.ok(phase.skillMapping?.length, `${phase.slug} should map to Superpowers skill(s)`);
+    assert.ok(phase.artifactEvidence?.length, `${phase.slug} should describe artifact or evidence`);
+    assert.ok(phase.failurePrevented?.length, `${phase.slug} should describe prevented failure`);
+    assert.match(JSON.stringify(phase), /Superpowers|spec-driven|coding agents/i);
+    assert.match(JSON.stringify(phase.example || {}), /ingestion pipeline/i);
+  }
+});
 
 test('Databricks scenario and artifacts data include all required components', () => {
   assert.equal(fs.existsSync(SCENARIO_PATH), true, 'assets/data/scenario.json should exist');
