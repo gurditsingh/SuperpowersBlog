@@ -7,7 +7,47 @@
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-  <main data-nav-root data-nav-base="." data-page-label="Simulation"></main>
+  <header data-nav-root data-nav-base="." data-page-label="Simulation"></header>
+  <main class="site-shell">
+    <section class="phase-page">
+      <p class="phase-kicker">Databricks receipt scenario</p>
+      <h1 class="phase-title">Deterministic Simulation Playground</h1>
+      <p class="phase-goal">Choose a fixed delivery posture and render the same phase-oriented Superpowers outcome every time.</p>
+
+      <form data-simulation-form>
+        <label>
+          Delivery mode
+          <select name="mode">
+            <option value="micro-batch" selected>Micro-batch</option>
+            <option value="batch">Batch</option>
+          </select>
+        </label>
+        <label>
+          Governance posture
+          <select name="governance">
+            <option value="strict" selected>Strict</option>
+            <option value="standard">Standard</option>
+          </select>
+        </label>
+        <label>
+          Quality target
+          <select name="quality">
+            <option value="high" selected>High</option>
+            <option value="standard">Standard</option>
+          </select>
+        </label>
+        <label>
+          Optimization tradeoff
+          <select name="tradeoff">
+            <option value="latency" selected>Latency</option>
+            <option value="throughput">Throughput</option>
+          </select>
+        </label>
+        <button type="submit">Run deterministic simulation</button>
+      </form>
+    </section>
+    <section data-simulation-result></section>
+  </main>
   <script src="assets/app.js"></script>
 </body>
 </html>

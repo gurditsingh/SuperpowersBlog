@@ -42,5 +42,27 @@
     "Schema drift from point-of-sale firmware updates can break receipt parsing unless Delta Lake expectations and quarantine paths are enforced.",
     "PII leakage is possible if Unity Catalog tags and grants are not reviewed before analyst access is opened.",
     "Lakebase serving tables can diverge from lakehouse truth unless synchronization freshness and failure behavior are specified."
-  ]
+  ],
+  "simulationDefaults": {
+    "input": {
+      "mode": "micro-batch",
+      "governance": "strict",
+      "quality": "high",
+      "tradeoff": "latency"
+    },
+    "phases": [
+      {
+        "id": "discovery",
+        "focus": "Confirm finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse."
+      },
+      {
+        "id": "plan",
+        "focus": "Plan Delta Lake quality gates, Unity Catalog policy reviews, Databricks SQL dashboards, and Lakebase serving synchronization."
+      },
+      {
+        "id": "verification",
+        "focus": "Verify freshness, quarantine rate, reconciliation accuracy, lineage, and serving sync behavior before sign-off."
+      }
+    ]
+  }
 }
