@@ -68,8 +68,14 @@
   }
 
   function currentPathFromLocation(pathname, pages) {
-    var path = String(pathname || '').replace(/\/+$/, '');
+    var rawPath = String(pathname || '');
+    var endedWithSlash = rawPath.slice(-1) === '/';
+    var path = rawPath.replace(/\/+$/, '');
     if (!path || path === '') {
+      return 'index.html';
+    }
+
+    if (endedWithSlash) {
       return 'index.html';
     }
 

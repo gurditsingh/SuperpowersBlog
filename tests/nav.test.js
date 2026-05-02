@@ -5,7 +5,7 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const siteData = require('../assets/data/site.json');
-const { buildNavigationLinks, renderNavigation } = require('../assets/app.js');
+const { buildNavigationLinks, currentPathFromLocation, renderNavigation } = require('../assets/app.js');
 
 const requiredPages = [
   { path: 'index.html', scriptSrc: 'assets/app.js' },
@@ -78,6 +78,23 @@ test('rendered navigation includes aria-current only on the current page', () =>
   assert.match(markup, /<a href="\.\.\/artifacts\.html">Artifacts<\/a>/);
   assert.match(markup, /<a href="\.\.\/phases\/discovery\.html" aria-current="page">Discovery<\/a>/);
   assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
+});
+
+test('github pages project-root directory URL resolves to home', () => {
+  assert.equal(currentPathFromLocation('/SuperpowerBlog/', siteData.pages), 'index.html');
+});
+
+test('rendered navigation marks home current for github pages project-root URL', () => {
+  const currentPath = currentPathFromLocation('/SuperpowerBlog/', siteData.pages);
+  const markup = renderNavigation({
+    pages: siteData.pages,
+    base: '.',
+    currentPath,
+    pageLabel: 'Superpowers Blog Home',
+  });
+
+  assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
+  assert.match(markup, /<a href="\.\/index\.html" aria-current="page">Home<\/a>/);
 });
 
 for (const page of requiredPages) {
