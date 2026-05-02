@@ -62,6 +62,21 @@ test('evaluateScenario returns deterministic full Superpowers workflow for fixed
   assert.match(resultText, /Lakebase/);
 });
 
+test('evaluateScenario generated output is Superpowers-first for the ingestion pipeline sample', async () => {
+  const { evaluateScenario } = await loadSimulationApi();
+  const result = evaluateScenario({
+    mode: 'micro-batch',
+    governance: 'strict',
+    quality: 'high',
+    tradeoff: 'latency',
+  });
+  const generatedOutput = JSON.stringify(result.generatedViews);
+
+  assert.match(generatedOutput, /Superpowers/i);
+  assert.match(generatedOutput, /spec-driven/i);
+  assert.match(generatedOutput, /ingestion pipeline/i);
+});
+
 test('renderSimulationResult emits all phase ids and generated views safely', async () => {
   const { evaluateScenario, renderSimulationResult } = await loadSimulationApi();
   const result = evaluateScenario({

@@ -297,12 +297,30 @@ test('Databricks scenario and artifacts data include all required components', (
   );
 });
 
-test('renderArtifactsPage emits the Databricks scenario and spec package sections safely', () => {
+test('scenario summary frames Databricks as a Superpowers sample project', () => {
+  const scenario = readJson(SCENARIO_PATH);
+
+  assert.match(scenario.summary, /Databricks ingestion pipeline/i);
+  assert.match(scenario.summary, /sample project/i);
+  assert.match(scenario.summary, /Superpowers/i);
+  assert.doesNotMatch(scenario.summary, /end-to-end Databricks platform/i);
+});
+
+test('artifact package is framed as Superpowers lifecycle evidence', () => {
+  const artifacts = readJson(ARTIFACTS_PATH);
+  const sectionText = collectText(artifacts.sections);
+
+  assert.match(artifacts.title, /Superpowers Sample Spec Package/i);
+  assert.match(artifacts.summary, /evidence produced by the Superpowers lifecycle/i);
+  assert.match(sectionText, /lifecycle|Brainstorm|Specification|Planning|TDD|Debugging|Review|Verification/i);
+});
+
+test('renderArtifactsPage emits the Superpowers sample package and spec sections safely', () => {
   assert.equal(typeof renderArtifactsPage, 'function', 'assets/app.js should export renderArtifactsPage');
 
   const markup = renderArtifactsPage(
     {
-      title: 'Retail receipts to analytics on Databricks',
+      title: 'Sample Project: Ingestion Pipeline',
       summary: 'A Data Lakehouse path using Delta Lake and Unity Catalog.',
       components: [{ name: 'Lakebase', role: 'Serves operational receipt lookups.' }],
       flow: ['Databricks SQL dashboards publish governed KPIs.'],
@@ -318,7 +336,8 @@ test('renderArtifactsPage emits the Databricks scenario and spec package section
     },
   );
 
-  assert.match(markup, /Retail receipts to analytics on Databricks/);
+  assert.match(markup, /Superpowers sample package/i);
+  assert.match(markup, /Sample Project: Ingestion Pipeline/);
   assert.match(markup, /Data Lakehouse/);
   assert.match(markup, /Databricks SQL/);
   assert.match(markup, /Delta Lake/);

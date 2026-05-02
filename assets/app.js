@@ -238,20 +238,20 @@
     var flow = scenario.dataFlow || scenario.flow || [];
     return (
       '<article class="site-shell phase-page artifacts-page">' +
-      '<p class="phase-kicker">Databricks sample scenario</p>' +
-      '<h1 class="phase-title">' + escapeHtml(scenario.title) + '</h1>' +
+      '<p class="phase-kicker">Superpowers sample package</p>' +
+      '<h1 class="phase-title">' + escapeHtml(artifacts.title || scenario.title) + '</h1>' +
       '<p class="phase-goal">' + escapeHtml(scenario.summary) + '</p>' +
       '<section class="phase-section">' +
-      '<h2>Scenario</h2>' +
+      '<h2>' + escapeHtml(scenario.title || 'Sample Project') + '</h2>' +
       '<p>' + escapeHtml(scenario.businessGoal || '') + '</p>' +
       renderList(flow) +
       '</section>' +
       '<section class="phase-section">' +
-      '<h2>Databricks Components</h2>' +
+      '<h2>Databricks Example Components</h2>' +
       renderScenarioComponents(scenario.components || []) +
       '</section>' +
       '<section class="phase-section">' +
-      '<h2>' + escapeHtml(artifacts.title || 'Sample spec package') + '</h2>' +
+      '<h2>Lifecycle Evidence</h2>' +
       '<p>' + escapeHtml(artifacts.summary || '') + '</p>' +
       '</section>' +
       (artifacts.sections || []).map(renderArtifactSection).join('') +
@@ -272,7 +272,7 @@
     return (
       '<article class="site-shell phase-page phase-page--fallback">' +
       '<h1 class="phase-title">Artifacts unavailable</h1>' +
-      '<p class="phase-goal">The Databricks scenario and sample spec package could not be loaded. Try refreshing the page.</p>' +
+      '<p class="phase-goal">The Superpowers sample package could not be loaded. Try refreshing the page.</p>' +
       '</article>'
     );
   }
@@ -307,7 +307,7 @@
           slaRisk: strictHighControl ? 'Low' : 'Medium',
           qualityIncidents: strictHighControl ? 1 : 2
         },
-        summary: 'Discovery, Specification, Planning, TDD, and Verification keep Delta contracts, Unity Catalog grants, and Databricks SQL acceptance checks aligned before release.'
+        summary: 'Superpowers discovery, specification, planning, TDD, and verification keep Delta contracts, Unity Catalog grants, and Databricks SQL acceptance checks aligned before release.'
       },
       withoutSuperpowers: {
         label: 'Without specification discipline',
@@ -316,7 +316,7 @@
           slaRisk: strictHighControl ? 'High' : 'Medium-high',
           qualityIncidents: strictHighControl ? 7 : 5
         },
-        summary: 'Teams optimize ingestion cost first, then discover dashboard reconciliation gaps after malformed receipt fields have already reached shared analytics surfaces.'
+        summary: 'Teams optimize the Databricks ingestion example first, then discover dashboard reconciliation gaps after malformed receipt fields have already reached shared analytics surfaces.'
       }
     };
   }
@@ -338,7 +338,8 @@
         id: 'discovery-output-summary',
         title: 'Discovery output summary',
         items: [
-          'Finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse.',
+          'Superpowers output: the vague coding-agent request is reframed as a spec-driven ingestion pipeline sample before Databricks details are chosen.',
+          'Sample project context: finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse.',
           'Success means trusted Delta Lake tables, Databricks SQL reconciliation, and Lakebase lookup behavior are defined before build.',
           'Chosen scenario profile: ' + deliveryProfile + '.'
         ]
@@ -347,6 +348,7 @@
         id: 'spec-boundary-choices',
         title: 'Spec boundary choices',
         items: [
+          'Superpowers output: spec-driven boundaries separate lifecycle evidence from the Databricks ingestion pipeline implementation example.',
           'In scope: bronze receipt ingestion, silver validation, gold reporting marts, Unity Catalog access rules, and Lakebase serving sync.',
           'Out of scope: loyalty personalization, refunds workflow automation, and non-receipt customer 360 expansion.',
           'Acceptance boundaries cover schema drift, quarantine behavior, freshness budgets, lineage, and dashboard reconciliation.'
@@ -356,6 +358,7 @@
         id: 'task-plan-breakdown',
         title: 'Task plan breakdown',
         items: [
+          'Superpowers output: convert the approved spec into ordered tasks with quality gates before editing the Databricks sample.',
           'Create Delta Lake contracts and fixtures before transformation work.',
           'Implement ingestion, validation, governance, SQL dashboard, and Lakebase sync tasks in dependency order.',
           'Attach every task to at least one test, review checkpoint, or verification command.'
@@ -365,6 +368,7 @@
         id: 'test-first-sequence',
         title: 'Test-first sequence',
         items: [
+          'Superpowers output: prove ingestion pipeline behavior with failing tests before implementation changes.',
           'RED: malformed receipts are quarantined before silver promotion.',
           'GREEN: validation logic writes accepted and rejected records to the expected Delta paths.',
           'REFACTOR: keep quality rules readable while preserving Databricks SQL acceptance checks.'
@@ -374,6 +378,7 @@
         id: 'debugging-path',
         title: 'Debugging path',
         items: [
+          'Superpowers output: debug from observed evidence instead of guessing at Databricks fixes.',
           'Reproduce dashboard reconciliation drift with a focused receipt fixture.',
           'Inspect Delta quality results, Unity Catalog lineage, and Lakebase sync timing separately.',
           'Fix the proven root cause only, then rerun the failing test and workflow verification.'
@@ -383,6 +388,7 @@
         id: 'review-findings-snapshot',
         title: 'Review findings snapshot',
         items: [
+          'Superpowers output: review findings are tied to spec commitments, tests, and residual ingestion pipeline risks.',
           'High: reject schema drift before shared Databricks SQL surfaces consume receipt totals.',
           'Medium: document Unity Catalog grant review ownership before broad dashboard rollout.',
           'Low: keep sample artifact links relative for GitHub Pages deployment.'
@@ -392,6 +398,7 @@
         id: 'verification-outcome-report',
         title: 'Verification outcome report',
         items: [
+          'Superpowers output: completion requires fresh verification evidence before the Databricks sample package is signed off.',
           'Status: ' + (warnings.length ? 'PASS_WITH_WARNINGS' : 'PASS') + '.',
           'Checks cover freshness, quarantine rate, dashboard reconciliation, lineage, and Lakebase synchronization.',
           warnings.length ? 'Residual warnings: ' + warnings.join(' ') : 'No residual warnings for the selected deterministic profile.'
@@ -422,7 +429,7 @@
       input: normalized,
       scenario: {
         id: 'retail-receipts-databricks',
-        title: 'Retail receipts to analytics on Databricks',
+        title: 'Superpowers sample output for a Databricks ingestion pipeline',
         concepts: [
           scenarioConcepts.lakehouse,
           scenarioConcepts.storage,
@@ -435,25 +442,25 @@
         {
           id: 'fundamentals',
           title: 'Fundamentals',
-          output: 'Anchor the team on spec-driven development: discovery precedes specification, tests precede implementation, and verification precedes completion claims.',
+          output: 'Superpowers frames the Databricks ingestion pipeline as a sample project: discovery precedes specification, tests precede implementation, and verification precedes completion claims.',
           concepts: [scenarioConcepts.lakehouse]
         },
         {
           id: 'discovery',
           title: 'Discovery',
-          output: 'Confirm finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse.',
+          output: 'Use Superpowers brainstorming to turn the vague ingestion pipeline request into users, goals, risks, and success criteria before Databricks design choices.',
           concepts: [scenarioConcepts.lakehouse, scenarioConcepts.analytics]
         },
         {
           id: 'specification',
           title: 'Specification',
-          output: 'Lock receipt schemas, quality thresholds, lineage expectations, access rules, SLA targets, and dashboard acceptance checks before planning work.',
+          output: 'Produce a spec-driven contract for receipt schemas, quality thresholds, lineage, access rules, SLA targets, and dashboard acceptance checks.',
           concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.analytics]
         },
         {
           id: 'implementation-planning',
           title: 'Implementation Planning',
-          output: 'Break the specification into ordered ingestion, validation, governance, SQL analytics, and Lakebase serving tasks.',
+          output: 'Break the Superpowers specification into ordered ingestion pipeline tasks for validation, governance, SQL analytics, and Lakebase serving.',
           concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.serving]
         },
         {
