@@ -65,11 +65,23 @@
     }).join('') + '</dl>';
   }
 
-  function renderPhaseSection(title, items) {
+  function renderPhaseSection(title, items, className) {
+    var sectionClass = className ? 'phase-section ' + className : 'phase-section';
     return (
-      '<section class="phase-section">' +
+      '<section class="' + escapeHtml(sectionClass) + '">' +
       '<h2>' + escapeHtml(title) + '</h2>' +
-      renderList(items) +
+      renderList(items || []) +
+      '</section>'
+    );
+  }
+
+  function renderPhaseExample(example) {
+    var phaseExample = example || {};
+    return (
+      '<section class="phase-section phase-section--example">' +
+      '<h2>Example: ingestion pipeline</h2>' +
+      '<p><strong>Task:</strong> ' + escapeHtml(phaseExample.task || '') + '</p>' +
+      '<p><strong>Superpowers move:</strong> ' + escapeHtml(phaseExample.superpowersMove || '') + '</p>' +
       '</section>'
     );
   }
@@ -185,11 +197,17 @@
       '<p class="phase-kicker">' + escapeHtml(phase.kicker || 'Superpowers phase') + '</p>' +
       '<h1 class="phase-title">' + escapeHtml(phase.title) + '</h1>' +
       '<p class="phase-goal">' + escapeHtml(phase.goal) + '</p>' +
-      '<div class="phase-grid">' +
-      renderPhaseSection('Inputs', phase.inputs || []) +
-      renderPhaseSection('Outputs', phase.outputs || []) +
-      renderPhaseSection('Antipatterns', phase.antipatterns || []) +
-      renderPhaseSection('Done Criteria', phase.doneCriteria || []) +
+      '<div class="phase-grid phase-grid--primary">' +
+      renderPhaseSection('Superpowers skill', phase.skillMapping || [], 'phase-section--primary') +
+      renderPhaseSection('Artifact / evidence', phase.artifactEvidence || [], 'phase-section--primary') +
+      renderPhaseSection('Failure prevented', phase.failurePrevented || [], 'phase-section--primary') +
+      renderPhaseExample(phase.example) +
+      '</div>' +
+      '<div class="phase-grid phase-grid--secondary">' +
+      renderPhaseSection('Inputs', phase.inputs || [], 'phase-section--secondary') +
+      renderPhaseSection('Outputs', phase.outputs || [], 'phase-section--secondary') +
+      renderPhaseSection('Antipatterns', phase.antipatterns || [], 'phase-section--secondary') +
+      renderPhaseSection('Done Criteria', phase.doneCriteria || [], 'phase-section--secondary') +
       '</div>' +
       '</article>'
     );

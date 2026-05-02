@@ -70,12 +70,26 @@ test('renderPhasePage emits required sections and escapes phase content', () => 
     title: 'Phase <script>alert("x")</script>',
     kicker: 'Kicker <strong>unsafe</strong>',
     goal: 'Goal uses <img src=x onerror=alert("x")>',
+    skillMapping: ['Superpowers <skill>'],
+    artifactEvidence: ['Artifact & evidence'],
+    failurePrevented: ['Failure "prevented"'],
+    example: {
+      task: 'Need to build an ingestion pipeline',
+      superpowersMove: 'Write a spec before coding',
+    },
     inputs: ['Input <one>'],
     outputs: ['Output & value'],
     antipatterns: ['Antipattern "quoted"'],
     doneCriteria: ['Done <criteria>'],
   });
 
+  assert.match(markup, />Superpowers skill<\/h2>/);
+  assert.match(markup, />Artifact \/ evidence<\/h2>/);
+  assert.match(markup, />Failure prevented<\/h2>/);
+  assert.match(markup, /Need to build an ingestion pipeline/);
+  assert.match(markup, /Superpowers &lt;skill&gt;/);
+  assert.match(markup, /Artifact &amp; evidence/);
+  assert.match(markup, /Failure &quot;prevented&quot;/);
   assert.match(markup, />Inputs<\/h2>/);
   assert.match(markup, />Outputs<\/h2>/);
   assert.match(markup, />Antipatterns<\/h2>/);

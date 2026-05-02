@@ -319,6 +319,14 @@ button:disabled {
   margin-top: 1rem;
 }
 
+.phase-grid--primary .phase-section {
+  border-top: 4px solid var(--accent-orange);
+}
+
+.phase-grid--secondary .phase-section {
+  box-shadow: none;
+}
+
 .phase-map {
   counter-reset: lifecycle;
   list-style: none;
