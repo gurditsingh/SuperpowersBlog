@@ -254,7 +254,10 @@ test('phase data uses Superpowers-first lifecycle structure', () => {
     assert.ok(phase.skillMapping?.length, `${phase.slug} should map to Superpowers skill(s)`);
     assert.ok(phase.artifactEvidence?.length, `${phase.slug} should describe artifact or evidence`);
     assert.ok(phase.failurePrevented?.length, `${phase.slug} should describe prevented failure`);
-    assert.match(JSON.stringify(phase), /Superpowers|spec-driven|coding agents/i);
+    const phaseText = JSON.stringify(phase);
+    assert.match(phaseText, /Superpowers/i);
+    assert.match(phaseText, /spec-driven/i);
+    assert.match(phaseText, /coding[- ]agents?/i);
     assert.match(JSON.stringify(phase.example || {}), /ingestion pipeline/i);
   }
 });
