@@ -121,6 +121,7 @@ test('visual system CSS exposes lifecycle console contracts', () => {
 
   assert.match(css, /--accent-teal\s*:/);
   assert.match(css, /--accent-orange\s*:\s*#ad521b/i);
+  assert.match(css, /--focus\s*:\s*#0a5f5a/i);
   assert.match(css, /\.sidebar\b/);
   assert.match(css, /\.drawer-toggle\b/);
   assert.match(css, /@media\s*\(max-width:\s*860px\)/);
