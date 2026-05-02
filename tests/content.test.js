@@ -108,6 +108,45 @@ test('bootstrapPhaseRoot renders visible fallback when phase slug is unknown', a
   }
 });
 
+test('bootstrapPhaseRoot renders visible fallback when fetching phase data rejects', async () => {
+  const originalFetch = global.fetch;
+  const { doc, root } = createPhaseDocument('discovery');
+  global.fetch = async () => {
+    throw new Error('network');
+  };
+
+  try {
+    const result = await bootstrapPhaseRoot(doc);
+
+    assert.equal(result, false);
+    assert.equal(root.attributes['data-phase-error'], 'true');
+    assert.match(root.innerHTML, /Phase content unavailable/);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('bootstrapPhaseRoot renders visible fallback when phase data JSON is invalid', async () => {
+  const originalFetch = global.fetch;
+  const { doc, root } = createPhaseDocument('discovery');
+  global.fetch = async () => ({
+    ok: true,
+    json: async () => {
+      throw new SyntaxError('bad json');
+    },
+  });
+
+  try {
+    const result = await bootstrapPhaseRoot(doc);
+
+    assert.equal(result, false);
+    assert.equal(root.attributes['data-phase-error'], 'true');
+    assert.match(root.innerHTML, /Phase content unavailable/);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
 test('phase data includes required sections for each phase', () => {
   assert.equal(fs.existsSync(PHASES_PATH), true, 'assets/data/phases.json should exist');
 
