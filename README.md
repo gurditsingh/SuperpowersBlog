@@ -16,6 +16,16 @@ node --test tests/content.test.js
 node --test tests/simulation.test.js
 ```
 
+## Local Preview
+
+Run:
+
+```sh
+python3 -m http.server 8000
+```
+
+Open `http://localhost:8000/index.html`.
+
 ## GitHub Pages Publishing
 
 1. Push this branch and merge it to `main` when verification passes.

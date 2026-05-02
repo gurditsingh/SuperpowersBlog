@@ -561,6 +561,13 @@ form[data-simulation-form] button {
     transform: translateX(0);
   }
 
+  .phase-grid,
+  .phase-map,
+  form[data-simulation-form],
+  .simulation-comparison .phase-grid {
+    grid-template-columns: 1fr;
+  }
+
   .skip-link {
     left: 5.7rem;
   }

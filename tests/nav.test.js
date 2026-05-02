@@ -133,6 +133,16 @@ test('visual system CSS exposes lifecycle console contracts', () => {
   assert.match(css, /@media\s*\(max-width:\s*860px\)\s*\{[\s\S]*\.app-shell\[data-drawer-open="true"\]\s+\.sidebar\s*\{[^}]*transform\s*:\s*translateX\(0\)/);
 });
 
+test('css includes mobile drawer and desktop left navigation breakpoints', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'assets/styles.css'), 'utf8');
+
+  assert.match(css, /\.sidebar\s*\{/);
+  assert.match(css, /position:\s*fixed/);
+  assert.match(css, /\.drawer-backdrop/);
+  assert.match(css, /max-width:\s*860px/);
+  assert.match(css, /grid-template-columns:\s*1fr/);
+});
+
 test('rendered navigation includes aria-current only on the current page', () => {
   const markup = renderNavigation({
     pages: siteData.pages,
