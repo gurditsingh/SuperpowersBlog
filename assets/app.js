@@ -119,15 +119,36 @@
     var toggle = rootDocument.querySelector('[data-drawer-toggle]');
     var shell = rootDocument.querySelector('[data-app-shell]');
     var backdrop = rootDocument.querySelector('[data-drawer-backdrop]');
+    var sidebar = rootDocument.querySelector('[data-sidebar]');
 
-    if (!toggle || !shell || !backdrop) {
+    if (!toggle || !shell || !backdrop || !sidebar) {
       return false;
+    }
+
+    var mobileQuery = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(max-width: 860px)')
+      : null;
+
+    function isMobile() {
+      return mobileQuery ? mobileQuery.matches : false;
+    }
+
+    function updateSidebarInteractivity(isOpen) {
+      if (isMobile() && !isOpen) {
+        sidebar.setAttribute('inert', '');
+        sidebar.setAttribute('aria-hidden', 'true');
+        return;
+      }
+
+      sidebar.removeAttribute('inert');
+      sidebar.setAttribute('aria-hidden', 'false');
     }
 
     function setOpen(isOpen) {
       shell.setAttribute('data-drawer-open', String(isOpen));
       toggle.setAttribute('aria-expanded', String(isOpen));
       backdrop.hidden = !isOpen;
+      updateSidebarInteractivity(isOpen);
     }
 
     toggle.addEventListener('click', function () {
@@ -136,6 +157,18 @@
     backdrop.addEventListener('click', function () {
       setOpen(false);
     });
+
+    if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
+      mobileQuery.addEventListener('change', function () {
+        updateSidebarInteractivity(toggle.getAttribute('aria-expanded') === 'true');
+      });
+    } else if (mobileQuery && typeof mobileQuery.addListener === 'function') {
+      mobileQuery.addListener(function () {
+        updateSidebarInteractivity(toggle.getAttribute('aria-expanded') === 'true');
+      });
+    }
+
+    updateSidebarInteractivity(toggle.getAttribute('aria-expanded') === 'true');
 
     return true;
   }

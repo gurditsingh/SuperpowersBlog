@@ -189,6 +189,9 @@ test('bootstrapDrawer toggles the mobile drawer and closes on backdrop click', (
       setAttribute(name, value) {
         this.attributes[name] = String(value);
       },
+      removeAttribute(name) {
+        delete this.attributes[name];
+      },
       addEventListener(name, handler) {
         this.listeners[name] = handler;
       },
@@ -198,6 +201,7 @@ test('bootstrapDrawer toggles the mobile drawer and closes on backdrop click', (
   const toggle = createElement({ 'aria-expanded': 'false' });
   const shell = createElement();
   const backdrop = createElement();
+  const sidebar = createElement();
   backdrop.hidden = true;
   const documentStub = {
     querySelector(selector) {
@@ -205,21 +209,43 @@ test('bootstrapDrawer toggles the mobile drawer and closes on backdrop click', (
         '[data-drawer-toggle]': toggle,
         '[data-app-shell]': shell,
         '[data-drawer-backdrop]': backdrop,
+        '[data-sidebar]': sidebar,
       }[selector];
     },
   };
+  const previousWindow = global.window;
+  global.window = {
+    matchMedia(query) {
+      assert.equal(query, '(max-width: 860px)');
+      return {
+        matches: true,
+        addEventListener() {},
+      };
+    },
+  };
 
-  assert.equal(bootstrapDrawer(documentStub), true);
+  try {
+    assert.equal(bootstrapDrawer(documentStub), true);
 
-  toggle.listeners.click();
-  assert.equal(shell.getAttribute('data-drawer-open'), 'true');
-  assert.equal(toggle.getAttribute('aria-expanded'), 'true');
-  assert.equal(backdrop.hidden, false);
+    assert.equal(sidebar.attributes.inert, '');
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'true');
 
-  backdrop.listeners.click();
-  assert.equal(shell.getAttribute('data-drawer-open'), 'false');
-  assert.equal(toggle.getAttribute('aria-expanded'), 'false');
-  assert.equal(backdrop.hidden, true);
+    toggle.listeners.click();
+    assert.equal(shell.getAttribute('data-drawer-open'), 'true');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'true');
+    assert.equal(backdrop.hidden, false);
+    assert.equal('inert' in sidebar.attributes, false);
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'false');
+
+    backdrop.listeners.click();
+    assert.equal(shell.getAttribute('data-drawer-open'), 'false');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(backdrop.hidden, true);
+    assert.equal(sidebar.attributes.inert, '');
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'true');
+  } finally {
+    global.window = previousWindow;
+  }
 });
 
 for (const page of requiredPages) {
