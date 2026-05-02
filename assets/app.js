@@ -1,41 +1,129 @@
-(function bootstrapNavigationRoot() {
-  var navRoot = document.querySelector('[data-nav-root]');
-  if (!navRoot) {
+(function navigationModule(root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
     return;
   }
 
-  var base = navRoot.getAttribute('data-nav-base') || '.';
-  var pageLabel = navRoot.getAttribute('data-page-label') || 'Superpowers Blog';
-  var links = [
-    { href: './phases/discovery.html', label: 'Discovery' },
-    { href: './simulation.html', label: 'Simulation' },
-    { href: './artifacts.html', label: 'Artifacts' }
-  ];
-
-  function resolveHref(href) {
-    if (base === '.') {
-      return href;
-    }
-    return href.replace('./', '../');
+  root.SuperpowerBlogNav = factory();
+})(typeof globalThis !== 'undefined' ? globalThis : this, function createNavigationModule() {
+  function stripLeadingDotSlash(path) {
+    return String(path || '').replace(/^\.?\//, '');
   }
 
-  var pathname = window.location.pathname || '';
-  var current = pathname.split('/').pop();
+  function normalizeBasePrefix(base) {
+    if (!base || base === '.') {
+      return './';
+    }
 
-  var navMarkup = links
-    .map(function (link) {
-      var resolvedHref = resolveHref(link.href);
-      var isCurrent = current === resolvedHref.split('/').pop();
-      var currentAttr = isCurrent ? ' aria-current="page"' : '';
-      return '<a href="' + resolvedHref + '"' + currentAttr + '>' + link.label + '</a>';
-    })
-    .join('');
+    return String(base).replace(/\/+$/, '') + '/';
+  }
 
-  navRoot.innerHTML =
-    '<div class="site-shell">' +
-    '<nav class="site-nav" aria-label="Primary">' + navMarkup + '</nav>' +
-    '<h1 class="page-title">' + pageLabel + '</h1>' +
-    '<p class="page-subtitle">Spec-driven blog work in progress.</p>' +
-    '</div>';
-  navRoot.setAttribute('data-nav-bootstrapped', 'true');
-})();
+  function normalizeCurrentPath(currentPath) {
+    var normalized = stripLeadingDotSlash(currentPath || 'index.html');
+    if (normalized === '') {
+      return 'index.html';
+    }
+    return normalized;
+  }
+
+  function buildNavigationLinks(pages, base, currentPath) {
+    var prefix = normalizeBasePrefix(base);
+    var normalizedCurrentPath = normalizeCurrentPath(currentPath);
+
+    return pages.map(function (page) {
+      var path = stripLeadingDotSlash(page.path);
+      return {
+        href: prefix + path,
+        label: page.label,
+        isCurrent: path === normalizedCurrentPath
+      };
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderNavigation(options) {
+    var links = buildNavigationLinks(options.pages, options.base, options.currentPath);
+    var pageLabel = options.pageLabel || 'Superpowers Blog';
+    var navMarkup = links
+      .map(function (link) {
+        var currentAttr = link.isCurrent ? ' aria-current="page"' : '';
+        return '<a href="' + escapeHtml(link.href) + '"' + currentAttr + '>' + escapeHtml(link.label) + '</a>';
+      })
+      .join('');
+
+    return (
+      '<div class="site-shell">' +
+      '<nav class="site-nav" aria-label="Primary">' + navMarkup + '</nav>' +
+      '<h1 class="page-title">' + escapeHtml(pageLabel) + '</h1>' +
+      '<p class="page-subtitle">Spec-driven blog work in progress.</p>' +
+      '</div>'
+    );
+  }
+
+  function currentPathFromLocation(pathname, pages) {
+    var path = String(pathname || '').replace(/\/+$/, '');
+    if (!path || path === '') {
+      return 'index.html';
+    }
+
+    for (var index = 0; index < pages.length; index += 1) {
+      var pagePath = stripLeadingDotSlash(pages[index].path);
+      if (path === '/' + pagePath || path.slice(-pagePath.length - 1) === '/' + pagePath) {
+        return pagePath;
+      }
+    }
+
+    return path.split('/').pop() || 'index.html';
+  }
+
+  function bootstrapNavigationRoot(doc, locationObject) {
+    var navRoot = doc.querySelector('[data-nav-root]');
+    if (!navRoot) {
+      return Promise.resolve(false);
+    }
+
+    var base = navRoot.getAttribute('data-nav-base') || '.';
+    var pageLabel = navRoot.getAttribute('data-page-label') || 'Superpowers Blog';
+    var dataUrl = normalizeBasePrefix(base) + 'assets/data/site.json';
+
+    return fetch(dataUrl)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Unable to load navigation data: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(function (siteData) {
+        var currentPath = currentPathFromLocation(locationObject.pathname, siteData.pages);
+        navRoot.innerHTML = renderNavigation({
+          pages: siteData.pages,
+          base: base,
+          currentPath: currentPath,
+          pageLabel: pageLabel
+        });
+        navRoot.setAttribute('data-nav-bootstrapped', 'true');
+        return true;
+      });
+  }
+
+  return {
+    buildNavigationLinks: buildNavigationLinks,
+    currentPathFromLocation: currentPathFromLocation,
+    normalizeBasePrefix: normalizeBasePrefix,
+    renderNavigation: renderNavigation,
+    bootstrapNavigationRoot: bootstrapNavigationRoot
+  };
+});
+
+if (typeof document !== 'undefined' && typeof fetch === 'function') {
+  globalThis.SuperpowerBlogNav.bootstrapNavigationRoot(document, window.location).catch(function (error) {
+    console.error(error);
+  });
+}

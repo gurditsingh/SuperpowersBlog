@@ -4,6 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
+const siteData = require('../assets/data/site.json');
+const { buildNavigationLinks, renderNavigation } = require('../assets/app.js');
 
 const requiredPages = [
   { path: 'index.html', scriptSrc: 'assets/app.js' },
@@ -33,6 +35,49 @@ test('index navigation includes required links', () => {
   assert.match(content, /href=["']\.\/phases\/discovery\.html["']/);
   assert.match(content, /href=["']\.\/simulation\.html["']/);
   assert.match(content, /href=["']\.\/artifacts\.html["']/);
+});
+
+test('generated root navigation includes every site page with root-relative hrefs', () => {
+  const links = buildNavigationLinks(siteData.pages, '.', 'simulation.html');
+
+  assert.deepEqual(
+    links.map(({ href, label }) => ({ href, label })),
+    siteData.pages.map((page) => ({ href: `./${page.path}`, label: page.label })),
+  );
+  assert.equal(
+    links.find((link) => link.href === './simulation.html')?.isCurrent,
+    true,
+    'current root page should be marked current',
+  );
+});
+
+test('generated phase navigation uses data-nav-base prefix and marks current phase', () => {
+  const links = buildNavigationLinks(siteData.pages, '..', 'phases/tdd.html');
+
+  assert.deepEqual(
+    links.map(({ href, label }) => ({ href, label })),
+    siteData.pages.map((page) => ({ href: `../${page.path}`, label: page.label })),
+  );
+  assert.equal(
+    links.find((link) => link.href === '../phases/tdd.html')?.isCurrent,
+    true,
+    'current phase page should be marked current',
+  );
+});
+
+test('rendered navigation includes aria-current only on the current page', () => {
+  const markup = renderNavigation({
+    pages: siteData.pages,
+    base: '..',
+    currentPath: 'phases/discovery.html',
+    pageLabel: 'Discovery',
+  });
+
+  assert.match(markup, /<a href="\.\.\/index\.html">Home<\/a>/);
+  assert.match(markup, /<a href="\.\.\/simulation\.html">Simulation<\/a>/);
+  assert.match(markup, /<a href="\.\.\/artifacts\.html">Artifacts<\/a>/);
+  assert.match(markup, /<a href="\.\.\/phases\/discovery\.html" aria-current="page">Discovery<\/a>/);
+  assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
 });
 
 for (const page of requiredPages) {
