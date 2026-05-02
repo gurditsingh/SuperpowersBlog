@@ -98,6 +98,15 @@
     );
   }
 
+  function renderPhaseFallback() {
+    return (
+      '<article class="site-shell phase-page phase-page--fallback">' +
+      '<h1 class="phase-title">Phase content unavailable</h1>' +
+      '<p class="phase-goal">The structured phase content could not be loaded. Try refreshing the page.</p>' +
+      '</article>'
+    );
+  }
+
   function currentPathFromLocation(pathname, pages) {
     var rawPath = String(pathname || '');
     var endedWithSlash = rawPath.slice(-1) === '/';
@@ -178,6 +187,11 @@
         phaseRoot.innerHTML = renderPhasePage(phase);
         phaseRoot.setAttribute('data-phase-bootstrapped', 'true');
         return true;
+      })
+      .catch(function () {
+        phaseRoot.innerHTML = renderPhaseFallback();
+        phaseRoot.setAttribute('data-phase-error', 'true');
+        return false;
       });
   }
 
