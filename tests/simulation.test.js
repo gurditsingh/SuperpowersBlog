@@ -30,3 +30,18 @@ test('evaluateScenario returns deterministic phase-oriented warnings for fixed i
   assert.match(resultText, /Unity Catalog/);
   assert.match(resultText, /Lakebase/);
 });
+
+test('evaluateScenario includes Superpowers comparison for strict batch cost scenario', async () => {
+  const evaluateScenario = await loadEvaluateScenario();
+
+  const result = evaluateScenario({
+    mode: 'batch',
+    governance: 'strict',
+    quality: 'high',
+    tradeoff: 'cost',
+  });
+
+  assert.ok(result.comparison);
+  assert.ok(result.comparison.withSuperpowers);
+  assert.ok(result.comparison.withoutSuperpowers);
+});

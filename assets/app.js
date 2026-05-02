@@ -54,6 +54,17 @@
     }).join('') + '</ul>';
   }
 
+  function renderMetricList(metrics) {
+    return '<dl class="simulation-metrics">' + Object.keys(metrics).map(function (key) {
+      return (
+        '<div>' +
+        '<dt>' + escapeHtml(key) + '</dt>' +
+        '<dd>' + escapeHtml(metrics[key]) + '</dd>' +
+        '</div>'
+      );
+    }).join('') + '</dl>';
+  }
+
   function renderPhaseSection(title, items) {
     return (
       '<section class="phase-section">' +
@@ -180,6 +191,41 @@
     };
   }
 
+  function buildScenarioComparison(normalized) {
+    var batchCostControl = normalized.mode === 'batch' && normalized.tradeoff === 'cost';
+    var strictHighControl = normalized.governance === 'strict' && normalized.quality === 'high';
+
+    return {
+      withSuperpowers: {
+        label: 'With Superpowers specification',
+        metrics: {
+          reworkHours: batchCostControl ? 10 : 14,
+          slaRisk: strictHighControl ? 'Low' : 'Medium',
+          qualityIncidents: strictHighControl ? 1 : 2
+        },
+        summary: 'Discovery, Specification, Planning, TDD, and Verification keep Delta contracts, Unity Catalog grants, and Databricks SQL acceptance checks aligned before release.'
+      },
+      withoutSuperpowers: {
+        label: 'Without specification discipline',
+        metrics: {
+          reworkHours: batchCostControl ? 42 : 32,
+          slaRisk: strictHighControl ? 'High' : 'Medium-high',
+          qualityIncidents: strictHighControl ? 7 : 5
+        },
+        summary: 'Teams optimize ingestion cost first, then discover dashboard reconciliation gaps after malformed receipt fields have already reached shared analytics surfaces.'
+      }
+    };
+  }
+
+  function buildSkipPhaseImpact() {
+    return {
+      phase: 'Specification',
+      effect: 'Skipping Specification lets Delta contract drift reach Databricks SQL dashboards before Unity Catalog lineage and dashboard reconciliation catch it.',
+      affectedSystems: ['Delta Lake', 'Unity Catalog', 'Databricks SQL'],
+      mitigation: 'Lock the receipt schema, quality thresholds, lineage expectations, and dashboard acceptance checks before implementation planning.'
+    };
+  }
+
   function evaluateScenario(input) {
     var normalized = normalizeScenarioInput(input);
     var warnings = [];
@@ -238,11 +284,42 @@
           'Delta Lake quarantine behavior is specified.',
           'Lakebase synchronization failure behavior is documented.'
         ]
-      }
+      },
+      comparison: buildScenarioComparison(normalized),
+      skipPhaseImpact: buildSkipPhaseImpact()
     };
   }
 
-  function renderSimulationResult(result) {
+  function renderComparisonSide(side) {
+    return (
+      '<section class="phase-section simulation-comparison-card">' +
+      '<h3>' + escapeHtml(side.label) + '</h3>' +
+      renderMetricList(side.metrics || {}) +
+      '<p>' + escapeHtml(side.summary) + '</p>' +
+      '</section>'
+    );
+  }
+
+  function renderSkipPhaseImpact(impact) {
+    if (!impact) {
+      return '';
+    }
+
+    return (
+      '<section class="phase-section simulation-failure-mode" data-failure-mode-impact>' +
+      '<h3>Failure-Mode Impact</h3>' +
+      '<p><strong>Skipped phase:</strong> ' + escapeHtml(impact.phase) + '</p>' +
+      '<p>' + escapeHtml(impact.effect) + '</p>' +
+      '<h4>Affected Databricks systems</h4>' +
+      renderList(impact.affectedSystems || []) +
+      '<p><strong>Mitigation:</strong> ' + escapeHtml(impact.mitigation || '') + '</p>' +
+      '</section>'
+    );
+  }
+
+  function renderSimulationResult(result, options) {
+    var renderOptions = options || {};
+    var showFailureImpact = renderOptions.showFailureImpact !== false;
     return (
       '<article class="phase-page simulation-result">' +
       '<p class="phase-kicker">Deterministic simulation result</p>' +
@@ -269,6 +346,14 @@
       '<h3>Warnings</h3>' +
       renderList(result.verification.warnings) +
       '</section>' +
+      '<section class="phase-section simulation-comparison">' +
+      '<h3>Superpowers vs. Non-Spec Delivery</h3>' +
+      '<div class="phase-grid">' +
+      renderComparisonSide(result.comparison.withSuperpowers) +
+      renderComparisonSide(result.comparison.withoutSuperpowers) +
+      '</div>' +
+      '</section>' +
+      (showFailureImpact ? renderSkipPhaseImpact(result.skipPhaseImpact) : '') +
       '</article>'
     );
   }
@@ -278,7 +363,8 @@
       mode: form.elements.mode.value,
       governance: form.elements.governance.value,
       quality: form.elements.quality.value,
-      tradeoff: form.elements.tradeoff.value
+      tradeoff: form.elements.tradeoff.value,
+      showFailureImpact: form.elements.showFailureImpact ? form.elements.showFailureImpact.checked : true
     };
   }
 
@@ -290,7 +376,10 @@
     }
 
     function renderCurrentScenario() {
-      resultRoot.innerHTML = renderSimulationResult(evaluateScenario(readSimulationInput(form)));
+      var input = readSimulationInput(form);
+      resultRoot.innerHTML = renderSimulationResult(evaluateScenario(input), {
+        showFailureImpact: input.showFailureImpact
+      });
       resultRoot.setAttribute('data-simulation-rendered', 'true');
     }
 

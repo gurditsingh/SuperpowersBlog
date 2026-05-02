@@ -41,7 +41,12 @@
           <select name="tradeoff">
             <option value="latency" selected>Latency</option>
             <option value="throughput">Throughput</option>
+            <option value="cost">Cost</option>
           </select>
+        </label>
+        <label class="simulation-toggle">
+          <input type="checkbox" name="showFailureImpact" checked>
+          Show failure-mode impact
         </label>
         <button type="submit">Run deterministic simulation</button>
       </form>

@@ -57,3 +57,43 @@ body {
   margin: 0.5rem 0 0;
   color: var(--muted);
 }
+
+.simulation-toggle {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.simulation-toggle input {
+  inline-size: auto;
+}
+
+.simulation-metrics {
+  display: grid;
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.simulation-metrics div {
+  align-items: baseline;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.simulation-metrics dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.simulation-metrics dd {
+  margin: 0;
+  font-weight: 800;
+}
+
+.simulation-failure-mode {
+  border-color: #d8842f;
+  box-shadow: inset 0.25rem 0 0 #d8842f;
+}
