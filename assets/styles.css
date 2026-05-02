@@ -43,9 +43,95 @@ body {
 
 .site-shell {
   max-width: 960px;
-  margin: 0 auto;
+  margin: 0 0 0 18rem;
   padding: 1.5rem 1rem 2rem;
-  width: min(100%, 960px);
+  width: auto;
+}
+
+.site-shell .site-shell {
+  margin-left: 0;
+  padding-inline: 0;
+}
+
+.app-shell {
+  position: relative;
+  z-index: 20;
+}
+
+.drawer-toggle {
+  display: none;
+}
+
+.drawer-backdrop {
+  background: rgb(18 32 52 / 58%);
+  inset: 0;
+  position: fixed;
+  z-index: 30;
+}
+
+.drawer-backdrop[hidden] {
+  display: none;
+}
+
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  left: 0;
+  overflow-y: auto;
+  padding: 1.25rem;
+  position: fixed;
+  top: 0;
+  width: 18rem;
+  z-index: 40;
+}
+
+.brand-mark {
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sidebar-nav::before {
+  color: var(--muted);
+  content: attr(aria-label);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin: 0.4rem 0 0.15rem;
+  text-transform: uppercase;
+}
+
+.sidebar-nav a {
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  color: var(--text);
+  font-weight: 700;
+  padding: 0.55rem 0.65rem;
+  text-decoration: none;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a:focus-visible {
+  background: var(--bg);
+  border-color: var(--border);
+  outline: none;
+}
+
+.sidebar-nav a[aria-current="page"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 .site-nav {
@@ -201,12 +287,46 @@ form[data-simulation-form] button,
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
 }
 
+@media (max-width: 860px) {
+  .site-shell {
+    margin-left: 0;
+  }
+
+  .drawer-toggle {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: 0 0.6rem 1.5rem rgb(18 32 52 / 14%);
+    color: var(--text);
+    display: inline-flex;
+    font-weight: 800;
+    left: 1rem;
+    padding: 0.55rem 0.85rem;
+    position: fixed;
+    top: 1rem;
+    z-index: 50;
+  }
+
+  .sidebar {
+    box-shadow: 0 1rem 3rem rgb(18 32 52 / 22%);
+    transform: translateX(-105%);
+    transition: transform 180ms ease;
+  }
+
+  .app-shell[data-drawer-open="true"] .sidebar {
+    transform: translateX(0);
+  }
+
+  .skip-link {
+    left: 5.5rem;
+  }
+}
+
 @media (max-width: 560px) {
   .site-shell {
     padding-inline: 0.85rem;
   }
 
-  .site-nav a,
   form[data-simulation-form] button,
   .simulation-stepper-controls button {
     width: 100%;

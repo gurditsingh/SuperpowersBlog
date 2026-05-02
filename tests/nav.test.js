@@ -5,7 +5,12 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const siteData = require('../assets/data/site.json');
-const { buildNavigationLinks, currentPathFromLocation, renderNavigation } = require('../assets/app.js');
+const {
+  bootstrapDrawer,
+  buildNavigationLinks,
+  currentPathFromLocation,
+  renderNavigation,
+} = require('../assets/app.js');
 
 const expectedLifecycle = [
   'Brainstorm / Design',
@@ -141,6 +146,80 @@ test('rendered navigation marks home current for github pages project-root URL',
 
   assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
   assert.match(markup, /<a href="\.\/index\.html" aria-current="page">Home<\/a>/);
+});
+
+test('rendered navigation uses left sidebar and mobile drawer controls', () => {
+  const markup = renderNavigation({
+    pages: siteData.pages,
+    base: '.',
+    currentPath: 'index.html',
+    pageLabel: 'Superpowers Lifecycle',
+  });
+
+  assert.match(markup, /class="app-shell"/);
+  assert.match(markup, /class="sidebar-nav"/);
+  assert.match(markup, /data-drawer-toggle/);
+  assert.match(markup, /aria-controls="site-navigation"/);
+  assert.match(markup, /id="site-navigation"/);
+});
+
+test('rendered navigation groups primary links and lifecycle links', () => {
+  const markup = renderNavigation({
+    pages: siteData.pages,
+    base: '..',
+    currentPath: 'phases/tdd.html',
+    pageLabel: 'Test-Driven Development',
+  });
+
+  assert.match(markup, /Primary/);
+  assert.match(markup, /Lifecycle/);
+  assert.match(markup, /Test-Driven Development/);
+  assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
+});
+
+test('bootstrapDrawer toggles the mobile drawer and closes on backdrop click', () => {
+  function createElement(attributes = {}) {
+    return {
+      attributes,
+      hidden: false,
+      listeners: {},
+      getAttribute(name) {
+        return this.attributes[name] || null;
+      },
+      setAttribute(name, value) {
+        this.attributes[name] = String(value);
+      },
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+    };
+  }
+
+  const toggle = createElement({ 'aria-expanded': 'false' });
+  const shell = createElement();
+  const backdrop = createElement();
+  backdrop.hidden = true;
+  const documentStub = {
+    querySelector(selector) {
+      return {
+        '[data-drawer-toggle]': toggle,
+        '[data-app-shell]': shell,
+        '[data-drawer-backdrop]': backdrop,
+      }[selector];
+    },
+  };
+
+  assert.equal(bootstrapDrawer(documentStub), true);
+
+  toggle.listeners.click();
+  assert.equal(shell.getAttribute('data-drawer-open'), 'true');
+  assert.equal(toggle.getAttribute('aria-expanded'), 'true');
+  assert.equal(backdrop.hidden, false);
+
+  backdrop.listeners.click();
+  assert.equal(shell.getAttribute('data-drawer-open'), 'false');
+  assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(backdrop.hidden, true);
 });
 
 for (const page of requiredPages) {

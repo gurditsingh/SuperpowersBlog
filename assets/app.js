@@ -76,21 +76,68 @@
 
   function renderNavigation(options) {
     var links = buildNavigationLinks(options.pages, options.base, options.currentPath);
-    var pageLabel = options.pageLabel || 'Superpowers Blog';
-    var navMarkup = links
-      .map(function (link) {
-        var currentAttr = link.isCurrent ? ' aria-current="page"' : '';
-        return '<a href="' + escapeHtml(link.href) + '"' + currentAttr + '>' + escapeHtml(link.label) + '</a>';
+    var primaryOrder = ['home', 'simulation', 'artifacts'];
+    var primaryLinks = primaryOrder
+      .map(function (id) {
+        return links.find(function (link, index) {
+          return options.pages[index].id === id;
+        });
       })
-      .join('');
+      .filter(Boolean);
+    var lifecycleLinks = links.filter(function (link, index) {
+      return stripLeadingDotSlash(options.pages[index].path).indexOf('phases/') === 0;
+    });
+    var homeLink = primaryLinks[0] || links[0];
+
+    function renderNavLinks(navLinks) {
+      return navLinks
+        .map(function (link) {
+          var currentAttr = link.isCurrent ? ' aria-current="page"' : '';
+          return '<a href="' + escapeHtml(link.href) + '"' + currentAttr + '>' + escapeHtml(link.label) + '</a>';
+        })
+        .join('');
+    }
+
+    var primaryMarkup = renderNavLinks(primaryLinks);
+    var lifecycleMarkup = renderNavLinks(lifecycleLinks);
 
     return (
-      '<div class="site-shell">' +
-      '<nav class="site-nav" aria-label="Primary">' + navMarkup + '</nav>' +
-      '<h1 class="page-title">' + escapeHtml(pageLabel) + '</h1>' +
-      '<p class="page-subtitle">Spec-driven blog work in progress.</p>' +
+      '<div class="app-shell" data-app-shell>' +
+      '<button class="drawer-toggle" type="button" data-drawer-toggle aria-controls="site-navigation" aria-expanded="false">Menu</button>' +
+      '<div class="drawer-backdrop" data-drawer-backdrop hidden></div>' +
+      '<aside class="sidebar" id="site-navigation" data-sidebar>' +
+      '<a class="brand-mark" href="' + escapeHtml(homeLink.href) + '">SuperpowersBlog</a>' +
+      '<nav class="sidebar-nav" aria-label="Primary">' + primaryMarkup + '</nav>' +
+      '<nav class="sidebar-nav sidebar-nav--lifecycle" aria-label="Lifecycle">' + lifecycleMarkup + '</nav>' +
+      '</aside>' +
       '</div>'
     );
+  }
+
+  function bootstrapDrawer(doc) {
+    var rootDocument = doc || document;
+    var toggle = rootDocument.querySelector('[data-drawer-toggle]');
+    var shell = rootDocument.querySelector('[data-app-shell]');
+    var backdrop = rootDocument.querySelector('[data-drawer-backdrop]');
+
+    if (!toggle || !shell || !backdrop) {
+      return false;
+    }
+
+    function setOpen(isOpen) {
+      shell.setAttribute('data-drawer-open', String(isOpen));
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      backdrop.hidden = !isOpen;
+    }
+
+    toggle.addEventListener('click', function () {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+    backdrop.addEventListener('click', function () {
+      setOpen(false);
+    });
+
+    return true;
   }
 
   function renderPhasePage(phase) {
@@ -663,6 +710,7 @@
           currentPath: currentPath,
           pageLabel: pageLabel
         });
+        bootstrapDrawer(doc);
         navRoot.setAttribute('data-nav-bootstrapped', 'true');
         return true;
       });
@@ -742,6 +790,7 @@
     currentPathFromLocation: currentPathFromLocation,
     normalizeBasePrefix: normalizeBasePrefix,
     renderNavigation: renderNavigation,
+    bootstrapDrawer: bootstrapDrawer,
     renderArtifactsPage: renderArtifactsPage,
     renderSimulationResult: renderSimulationResult,
     getSimulationStepperState: getSimulationStepperState,
