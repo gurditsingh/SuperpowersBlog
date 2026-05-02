@@ -1,0 +1,68 @@
+{
+  "id": "retail-receipts-databricks",
+  "title": "Retail receipts to analytics on Databricks",
+  "summary": "A regional retailer turns store, ecommerce, and mobile receipt events into governed analytics and operational receipt lookup services on a Databricks Data Lakehouse.",
+  "businessGoal": "Reduce weekly margin reconciliation from two days to one hour while giving finance, merchandising, and support teams a trusted view of receipt-level sales, taxes, discounts, and returns.",
+  "components": [
+    {
+      "name": "Data Lakehouse",
+      "role": "Organizes raw, refined, and business-ready receipt data in one governed architecture for analytics and downstream serving."
+    },
+    {
+      "name": "Delta Lake",
+      "role": "Stores bronze receipt events, silver normalized line items, and gold aggregate tables with ACID transactions, schema evolution controls, and time travel for audit recovery."
+    },
+    {
+      "name": "Unity Catalog",
+      "role": "Applies catalog, schema, table, lineage, masking, and access policies so receipt PII and tender data are discoverable but controlled."
+    },
+    {
+      "name": "Databricks SQL",
+      "role": "Publishes governed dashboards for sales, basket mix, promotion leakage, tax reconciliation, and store exception review."
+    },
+    {
+      "name": "Lakebase",
+      "role": "Serves low-latency operational receipt lookups for customer support and return authorization while sourcing trusted records from the lakehouse."
+    }
+  ],
+  "dataFlow": [
+    "Receipt JSON and PDF-derived text land in bronze Delta Lake tables partitioned by ingestion date and source system.",
+    "Silver pipelines standardize store identifiers, timestamps, tax fields, SKU references, discounts, and tender metadata while quarantining malformed receipts.",
+    "Unity Catalog classifies customer identifiers and payment-adjacent fields, then enforces analyst, finance, and support access boundaries.",
+    "Gold marts summarize daily sales, return rates, tax variance, and promotion performance for Databricks SQL dashboards.",
+    "A curated receipt service table is synchronized into Lakebase for customer support search by receipt id, loyalty id, and return authorization id."
+  ],
+  "successMetrics": [
+    "Receipt freshness is under 30 minutes for analytics and under five minutes for Lakebase support lookup extracts.",
+    "At least 99.5 percent of valid receipt events reach silver tables without manual intervention.",
+    "Databricks SQL finance dashboards reconcile gross sales, taxes, returns, and discounts to point-of-sale control totals within 0.2 percent.",
+    "Unity Catalog lineage shows source-to-dashboard traceability for each gold KPI table."
+  ],
+  "risks": [
+    "Schema drift from point-of-sale firmware updates can break receipt parsing unless Delta Lake expectations and quarantine paths are enforced.",
+    "PII leakage is possible if Unity Catalog tags and grants are not reviewed before analyst access is opened.",
+    "Lakebase serving tables can diverge from lakehouse truth unless synchronization freshness and failure behavior are specified."
+  ],
+  "simulationDefaults": {
+    "input": {
+      "mode": "micro-batch",
+      "governance": "strict",
+      "quality": "high",
+      "tradeoff": "latency"
+    },
+    "phases": [
+      {
+        "id": "discovery",
+        "focus": "Confirm finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse."
+      },
+      {
+        "id": "plan",
+        "focus": "Plan Delta Lake quality gates, Unity Catalog policy reviews, Databricks SQL dashboards, and Lakebase serving synchronization."
+      },
+      {
+        "id": "verification",
+        "focus": "Verify freshness, quarantine rate, reconciliation accuracy, lineage, and serving sync behavior before sign-off."
+      }
+    ]
+  }
+}

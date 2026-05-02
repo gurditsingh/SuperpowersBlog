@@ -1,0 +1,18 @@
+{
+  "title": "Superpowers Spec-Driven Blog",
+  "pages": [
+    { "id": "home", "path": "index.html", "label": "Home" },
+    { "id": "artifacts", "path": "artifacts.html", "label": "Artifacts" },
+    { "id": "simulation", "path": "simulation.html", "label": "Simulation" },
+    { "id": "fundamentals", "path": "phases/fundamentals.html", "label": "Fundamentals" },
+    { "id": "discovery", "path": "phases/discovery.html", "label": "Discovery" },
+    { "id": "specification", "path": "phases/specification.html", "label": "Specification" },
+    { "id": "implementation-planning", "path": "phases/implementation-planning.html", "label": "Implementation Planning" },
+    { "id": "workspace-setup", "path": "phases/workspace-setup.html", "label": "Workspace Setup" },
+    { "id": "tdd", "path": "phases/tdd.html", "label": "TDD" },
+    { "id": "systematic-debugging", "path": "phases/systematic-debugging.html", "label": "Systematic Debugging" },
+    { "id": "code-review", "path": "phases/code-review.html", "label": "Code Review" },
+    { "id": "verification", "path": "phases/verification.html", "label": "Verification" },
+    { "id": "completion", "path": "phases/completion.html", "label": "Completion" }
+  ]
+}
