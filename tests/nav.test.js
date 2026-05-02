@@ -116,6 +116,17 @@ test('site navigation uses verified Superpowers lifecycle labels', () => {
   assert.deepEqual(lifecycleLabels, expectedLifecycle);
 });
 
+test('visual system CSS exposes lifecycle console contracts', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'assets/styles.css'), 'utf8');
+
+  assert.match(css, /--accent-teal\s*:/);
+  assert.match(css, /--accent-orange\s*:/);
+  assert.match(css, /\.sidebar\b/);
+  assert.match(css, /\.drawer-toggle\b/);
+  assert.match(css, /@media\s*\(max-width:\s*860px\)/);
+  assert.match(css, /overflow-x:\s*hidden/);
+});
+
 test('rendered navigation includes aria-current only on the current page', () => {
   const markup = renderNavigation({
     pages: siteData.pages,
