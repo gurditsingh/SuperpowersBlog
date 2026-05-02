@@ -315,19 +315,27 @@ test('renderArtifactsPage emits the Databricks scenario and spec package section
   assert.doesNotMatch(markup, /<unsafe>/);
 });
 
-test('homepage includes full phase map and sample spec package CTA', () => {
+test('homepage presents the Superpowers lifecycle landing page', () => {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   const homepagePhaseLabels = siteData.pages
     .filter((page) => page.path.startsWith('phases/'))
     .map((page) => page.label);
 
   assert.match(html, /Superpowers spec-driven development/i);
+  assert.match(html, /Superpowers spec-driven development for coding agents/i);
   assert.match(html, /why spec-driven development matters/i);
+  assert.match(html, /feedback loop/i);
+  assert.match(html, /Systematic Debugging[\s\S]*Code Review[\s\S]*Verification/i);
+  assert.match(html, /Specification or Implementation Planning/i);
 
   for (const label of homepagePhaseLabels) {
     assert.match(html, new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `homepage should include ${label}`);
   }
 
+  assert.match(html, /id=["']main-content["']/);
+  assert.match(html, /data-nav-root/);
   assert.match(html, /href=["']\.\/artifacts\.html["']/);
   assert.match(html, /View Full Sample Spec Package/);
+  assert.match(html, /href=["']\.\/simulation\.html["']/);
+  assert.doesNotMatch(html, /Databricks end-to-end data platform delivery/);
 });

@@ -11,23 +11,25 @@
   <header data-nav-root data-nav-base="." data-page-label="Superpowers Blog Home"></header>
   <main id="main-content" class="site-shell">
     <section class="phase-page">
-      <p class="phase-kicker">Superpowers spec-driven development</p>
-      <h1 class="phase-title">Ship with a spec, not a shrug.</h1>
-      <p class="phase-goal">Superpowers turns high-pressure engineering work into a disciplined path from discovery to completion, where every implementation claim has a contract, test, review, and verification trail.</p>
+      <p class="phase-kicker">Lifecycle console for coding agents</p>
+      <h1 class="phase-title">Superpowers spec-driven development for coding agents</h1>
+      <p class="phase-goal">Move from intent to a verified branch through a visible operating system: brainstorm the right problem, specify the contract, isolate the workspace, plan the implementation, execute with tests, and close with evidence.</p>
       <p>
         <a class="button-link" href="./artifacts.html">View Full Sample Spec Package</a>
-        <a href="./simulation.html">Run the simulation</a>
+        <a href="./simulation.html">Open Lifecycle Playground</a>
       </p>
     </section>
 
     <section class="phase-section">
-      <h2>Why spec-driven development matters</h2>
-      <p>Complex delivery fails when teams jump from vague intent to code and discover missing boundaries during review or release. Spec-driven development makes decisions explicit before implementation, catches ambiguity while it is still cheap, and gives reviewers evidence instead of optimism.</p>
+      <h2>Why spec-driven development matters for coding agents</h2>
+      <p>Coding agents are fast enough to amplify unclear direction. Superpowers slows down the decisions that must be deliberate: what outcome matters, what contract defines success, which tests prove the work, and what evidence reviewers need before a branch is complete.</p>
+      <p>Instead of treating prompts as disposable instructions, the lifecycle turns each agent move into durable project memory. Specifications, implementation plans, failing tests, debug notes, review findings, and verification output become the shared source of truth.</p>
     </section>
 
     <section class="phase-section">
-      <h2>10-phase Superpowers overview map</h2>
-      <ol class="phase-map">
+      <h2>Linear lifecycle map</h2>
+      <p>The main path runs from Brainstorm / Design to Branch Completion, with every stage producing artifacts the next stage can inspect.</p>
+      <ol class="phase-map" aria-label="Superpowers lifecycle from design to branch completion">
         <li><a href="./phases/fundamentals.html">Brainstorm / Design</a> - clarify goals, alternatives, constraints, risks, and success criteria before coding.</li>
         <li><a href="./phases/discovery.html">Specification</a> - turn approved intent into boundaries, contracts, acceptance criteria, and non-goals.</li>
         <li><a href="./phases/specification.html">Workspace Isolation</a> - protect the repository with a clean branch or worktree before implementation begins.</li>
@@ -39,6 +41,12 @@
         <li><a href="./phases/verification.html">Verification</a> - run the checks that prove the work matches the contract.</li>
         <li><a href="./phases/completion.html">Branch Completion</a> - package the branch with tests, status, commit evidence, and next steps.</li>
       </ol>
+    </section>
+
+    <section class="phase-section">
+      <h2>Feedback loop</h2>
+      <p>Systematic Debugging, Code Review, and Verification do not sit at the end as ceremonial gates. They route evidence back into Specification or Implementation Planning when the facts show the contract is incomplete, the plan missed a dependency, or the implementation needs a narrower next step.</p>
+      <p>That feedback loop keeps the agent honest: every claim returns to a source artifact, every failed check updates the plan, and every completed branch carries the trail needed for handoff.</p>
     </section>
   </main>
   <script src="assets/app.js"></script>
