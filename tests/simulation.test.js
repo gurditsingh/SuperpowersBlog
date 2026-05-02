@@ -5,6 +5,8 @@ async function loadSimulationApi() {
   const app = await import('../assets/app.js');
   return {
     evaluateScenario: app.evaluateScenario || app.default?.evaluateScenario,
+    getSimulationStepperState: app.getSimulationStepperState || app.default?.getSimulationStepperState,
+    getNextSimulationPhaseIndex: app.getNextSimulationPhaseIndex || app.default?.getNextSimulationPhaseIndex,
     renderSimulationResult: app.renderSimulationResult || app.default?.renderSimulationResult,
   };
 }
@@ -78,6 +80,74 @@ test('renderSimulationResult emits all phase ids and generated views safely', as
     assert.match(markup, new RegExp(viewName, 'i'), `markup should render ${viewName}`);
   }
   assert.doesNotMatch(markup, /micro-batch<script>/);
+});
+
+test('simulation stepper initial state starts at fundamentals and disables Previous', async () => {
+  const { evaluateScenario, getSimulationStepperState, renderSimulationResult } = await loadSimulationApi();
+  const result = evaluateScenario({
+    mode: 'micro-batch',
+    governance: 'strict',
+    quality: 'high',
+    tradeoff: 'latency',
+  });
+
+  const state = getSimulationStepperState(result, 0);
+  const markup = renderSimulationResult(result, { phaseIndex: 0 });
+
+  assert.equal(state.currentIndex, 0);
+  assert.equal(state.currentPhase.id, 'fundamentals');
+  assert.equal(state.canGoPrevious, false);
+  assert.equal(state.canGoNext, true);
+  assert.equal(state.progressText, 'Phase 1 of 10');
+  assert.match(markup, /data-active-phase-id="fundamentals"/);
+  assert.match(markup, /<button type="button" data-simulation-step="previous" disabled>Previous<\/button>/);
+  assert.match(markup, /Phase 1 of 10/);
+});
+
+test('simulation stepper Next eventually reaches completion and disables Next', async () => {
+  const { evaluateScenario, getSimulationStepperState, getNextSimulationPhaseIndex, renderSimulationResult } =
+    await loadSimulationApi();
+  const result = evaluateScenario({
+    mode: 'micro-batch',
+    governance: 'strict',
+    quality: 'high',
+    tradeoff: 'latency',
+  });
+  let phaseIndex = 0;
+
+  while (getSimulationStepperState(result, phaseIndex).canGoNext) {
+    phaseIndex = getNextSimulationPhaseIndex(result, phaseIndex, 'next');
+  }
+
+  const state = getSimulationStepperState(result, phaseIndex);
+  const markup = renderSimulationResult(result, { phaseIndex });
+
+  assert.equal(state.currentIndex, expectedPhaseIds.length - 1);
+  assert.equal(state.currentPhase.id, 'completion');
+  assert.equal(state.canGoPrevious, true);
+  assert.equal(state.canGoNext, false);
+  assert.equal(state.progressText, 'Phase 10 of 10');
+  assert.match(markup, /data-active-phase-id="completion"/);
+  assert.match(markup, /<button type="button" data-simulation-step="next" disabled>Next<\/button>/);
+});
+
+test('simulation stepper preserves generated views in rendered result', async () => {
+  const { evaluateScenario, renderSimulationResult } = await loadSimulationApi();
+  const result = evaluateScenario({
+    mode: 'batch',
+    governance: 'strict',
+    quality: 'high',
+    tradeoff: 'cost',
+  });
+
+  const markup = renderSimulationResult(result, { phaseIndex: expectedPhaseIds.length - 1 });
+
+  for (const viewName of requiredGeneratedViews) {
+    assert.match(markup, new RegExp(viewName, 'i'), `markup should render ${viewName}`);
+  }
+  assert.match(markup, /data-generated-view="discovery-output-summary"/);
+  assert.match(markup, /data-failure-mode-impact/);
+  assert.match(markup, /Superpowers vs\. Non-Spec Delivery/);
 });
 
 test('evaluateScenario includes Superpowers comparison for strict batch cost scenario', async () => {

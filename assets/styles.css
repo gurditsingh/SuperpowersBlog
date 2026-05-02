@@ -131,6 +131,32 @@ form[data-simulation-form] button,
   align-self: end;
 }
 
+.simulation-stepper {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.simulation-stepper-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.simulation-stepper-controls button {
+  min-width: 7rem;
+}
+
+.simulation-active-phase {
+  border-color: #2f6fd8;
+  box-shadow: inset 0.25rem 0 0 #2f6fd8;
+}
+
+.simulation-phase-summary[data-phase-status="active"] {
+  border-color: #2f6fd8;
+}
+
 .simulation-toggle {
   align-items: center;
   display: flex;
@@ -181,8 +207,15 @@ form[data-simulation-form] button,
   }
 
   .site-nav a,
-  form[data-simulation-form] button {
+  form[data-simulation-form] button,
+  .simulation-stepper-controls button {
     width: 100%;
+  }
+
+  .simulation-stepper,
+  .simulation-stepper-controls {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .simulation-metrics div {

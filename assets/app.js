@@ -441,9 +441,83 @@
     );
   }
 
+  function clampPhaseIndex(result, phaseIndex) {
+    var phases = result && Array.isArray(result.phases) ? result.phases : [];
+    var lastIndex = Math.max(phases.length - 1, 0);
+    var requestedIndex = Number.isFinite(Number(phaseIndex)) ? Number(phaseIndex) : 0;
+    return Math.min(Math.max(Math.floor(requestedIndex), 0), lastIndex);
+  }
+
+  function getSimulationStepperState(result, phaseIndex) {
+    var phases = result && Array.isArray(result.phases) ? result.phases : [];
+    var total = phases.length;
+    var currentIndex = clampPhaseIndex(result, phaseIndex);
+    var currentPhase = phases[currentIndex] || null;
+
+    return {
+      currentIndex: currentIndex,
+      currentPhase: currentPhase,
+      total: total,
+      canGoPrevious: currentIndex > 0,
+      canGoNext: total > 0 && currentIndex < total - 1,
+      progressText: total > 0 ? 'Phase ' + (currentIndex + 1) + ' of ' + total : 'No phases available'
+    };
+  }
+
+  function getNextSimulationPhaseIndex(result, phaseIndex, direction) {
+    var state = getSimulationStepperState(result, phaseIndex);
+    var delta = direction === 'previous' ? -1 : 1;
+    return clampPhaseIndex(result, state.currentIndex + delta);
+  }
+
+  function renderSimulationStepper(state) {
+    return (
+      '<section class="phase-section simulation-stepper" data-simulation-stepper>' +
+      '<div>' +
+      '<h3>Current Simulation Phase</h3>' +
+      '<p data-simulation-progress>' + escapeHtml(state.progressText) + '</p>' +
+      '</div>' +
+      '<div class="simulation-stepper-controls">' +
+      '<button type="button" data-simulation-step="previous"' + (state.canGoPrevious ? '' : ' disabled') + '>Previous</button>' +
+      '<button type="button" data-simulation-step="next"' + (state.canGoNext ? '' : ' disabled') + '>Next</button>' +
+      '</div>' +
+      '</section>'
+    );
+  }
+
+  function renderActiveSimulationPhase(phase) {
+    if (!phase) {
+      return (
+        '<section class="phase-section simulation-active-phase" data-active-phase-id="">' +
+        '<h3>No active phase</h3>' +
+        '<p>The simulation has no phase data to display.</p>' +
+        '</section>'
+      );
+    }
+
+    return (
+      '<section class="phase-section simulation-active-phase" data-active-phase-id="' + escapeHtml(phase.id) + '">' +
+      '<h3>' + escapeHtml(phase.title) + '</h3>' +
+      '<p>' + escapeHtml(phase.output) + '</p>' +
+      renderList(phase.concepts || []) +
+      '</section>'
+    );
+  }
+
+  function renderPhaseSummary(phase, index, state) {
+    var status = index < state.currentIndex ? 'completed' : (index === state.currentIndex ? 'active' : 'upcoming');
+    return (
+      '<section class="phase-section simulation-phase-summary" data-phase-id="' + escapeHtml(phase.id) + '" data-phase-status="' + escapeHtml(status) + '">' +
+      '<h3>' + escapeHtml(index + 1) + '. ' + escapeHtml(phase.title) + '</h3>' +
+      '<p>' + escapeHtml(status) + '</p>' +
+      '</section>'
+    );
+  }
+
   function renderSimulationResult(result, options) {
     var renderOptions = options || {};
     var showFailureImpact = renderOptions.showFailureImpact !== false;
+    var stepperState = getSimulationStepperState(result, renderOptions.phaseIndex || 0);
     return (
       '<article class="phase-page simulation-result">' +
       '<p class="phase-kicker">Deterministic simulation result</p>' +
@@ -453,15 +527,14 @@
       '<h3>Scenario Concepts</h3>' +
       renderList(result.scenario.concepts) +
       '</section>' +
-      '<div class="phase-grid">' + result.phases.map(function (phase) {
-        return (
-          '<section class="phase-section" data-phase-id="' + escapeHtml(phase.id) + '">' +
-          '<h3>' + escapeHtml(phase.title) + '</h3>' +
-          '<p>' + escapeHtml(phase.output) + '</p>' +
-          renderList(phase.concepts) +
-          '</section>'
-        );
+      renderSimulationStepper(stepperState) +
+      renderActiveSimulationPhase(stepperState.currentPhase) +
+      '<section class="phase-section simulation-phase-roadmap">' +
+      '<h3>Phase Roadmap</h3>' +
+      '<div class="phase-grid">' + result.phases.map(function (phase, index) {
+        return renderPhaseSummary(phase, index, stepperState);
       }).join('') + '</div>' +
+      '</section>' +
       '<section class="phase-section simulation-generated-views">' +
       '<h3>Generated Superpowers Views</h3>' +
       '<div class="phase-grid">' +
@@ -504,18 +577,39 @@
     if (!form || !resultRoot) {
       return false;
     }
+    var phaseIndex = 0;
 
     function renderCurrentScenario() {
       var input = readSimulationInput(form);
-      resultRoot.innerHTML = renderSimulationResult(evaluateScenario(input), {
-        showFailureImpact: input.showFailureImpact
+      var result = evaluateScenario(input);
+      phaseIndex = clampPhaseIndex(result, phaseIndex);
+      resultRoot.innerHTML = renderSimulationResult(result, {
+        showFailureImpact: input.showFailureImpact,
+        phaseIndex: phaseIndex
       });
       resultRoot.setAttribute('data-simulation-rendered', 'true');
     }
 
-    form.addEventListener('change', renderCurrentScenario);
+    form.addEventListener('change', function () {
+      phaseIndex = 0;
+      renderCurrentScenario();
+    });
     form.addEventListener('submit', function (event) {
       event.preventDefault();
+      phaseIndex = 0;
+      renderCurrentScenario();
+    });
+    resultRoot.addEventListener('click', function (event) {
+      var control = event.target && event.target.closest ? event.target.closest('[data-simulation-step]') : null;
+      if (!control) {
+        return;
+      }
+
+      phaseIndex = getNextSimulationPhaseIndex(
+        evaluateScenario(readSimulationInput(form)),
+        phaseIndex,
+        control.getAttribute('data-simulation-step')
+      );
       renderCurrentScenario();
     });
     renderCurrentScenario();
@@ -650,6 +744,8 @@
     renderNavigation: renderNavigation,
     renderArtifactsPage: renderArtifactsPage,
     renderSimulationResult: renderSimulationResult,
+    getSimulationStepperState: getSimulationStepperState,
+    getNextSimulationPhaseIndex: getNextSimulationPhaseIndex,
     renderPhasePage: renderPhasePage,
     bootstrapArtifactsRoot: bootstrapArtifactsRoot,
     bootstrapNavigationRoot: bootstrapNavigationRoot,
