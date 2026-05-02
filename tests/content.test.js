@@ -257,7 +257,7 @@ test('phase data uses Superpowers-first lifecycle structure', () => {
     const phaseText = JSON.stringify(phase);
     assert.match(phaseText, /Superpowers/i);
     assert.match(phaseText, /spec-driven/i);
-    assert.match(phaseText, /coding[- ]agents?/i);
+    assert.match(phaseText, /coding-agent|coding agents/i);
     assert.match(JSON.stringify(phase.example || {}), /ingestion pipeline/i);
   }
 });

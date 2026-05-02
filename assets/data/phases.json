@@ -3,10 +3,10 @@
     "slug": "fundamentals",
     "title": "Brainstorm / Design",
     "kicker": "Start with intent, not code",
-    "goal": "Use Superpowers brainstorming to clarify the real goal, constraints, alternatives, risks, and success criteria before a coding agent changes the system.",
+    "goal": "Use Superpowers brainstorming to clarify the real goal, constraints, alternatives, risks, and success criteria before coding agents change the system.",
     "skillMapping": ["superpowers:brainstorming"],
     "artifactEvidence": ["Approved design direction", "Captured assumptions and constraints", "Success criteria ready for a spec-driven handoff"],
-    "failurePrevented": ["The coding agent starts from a vague prompt and builds the wrong thing."],
+    "failurePrevented": ["Coding agents start from a vague prompt and build the wrong thing."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "Ask what data arrives, who consumes it, what freshness matters, and what failure behavior is acceptable before proposing implementation."
@@ -23,24 +23,24 @@
     "goal": "Convert the approved Superpowers design into a spec-driven contract with observable behavior, acceptance criteria, non-goals, and risks.",
     "skillMapping": ["superpowers:writing-plans", "superpowers:brainstorming"],
     "artifactEvidence": ["Formal specification", "Acceptance criteria", "Explicit non-goals and unresolved decisions"],
-    "failurePrevented": ["A coding agent implements from memory and misses requirements that were only implied."],
+    "failurePrevented": ["Coding agents implement from memory and miss requirements that were only implied."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "Specify source formats, schema drift behavior, retry policy, data quality checks, and the evidence required before the pipeline can be called complete."
     },
     "inputs": ["Approved design", "Constraints", "Stakeholder decisions"],
     "outputs": ["Reviewed specification", "Acceptance tests to write", "Traceable requirement list"],
-    "antipatterns": ["Writing tasks before behavior is specified", "Leaving edge cases for the coding agent to invent"],
+    "antipatterns": ["Writing tasks before behavior is specified", "Leaving edge cases for coding agents to invent"],
     "doneCriteria": ["Every requirement has observable behavior or verification evidence."]
   },
   {
     "slug": "specification",
     "title": "Workspace Isolation",
     "kicker": "Protect unrelated work",
-    "goal": "Use Superpowers workspace isolation to create a spec-driven safe branch or worktree, inspect repository state, and prevent the coding agent from trampling unrelated edits.",
+    "goal": "Use Superpowers workspace isolation to create a spec-driven safe branch or worktree, inspect repository state, and prevent coding agents from trampling unrelated edits.",
     "skillMapping": ["superpowers:using-git-worktrees"],
     "artifactEvidence": ["Starting git status", "Isolated branch or worktree path", "Known unrelated changes left untouched"],
-    "failurePrevented": ["The coding agent mixes another person's edits into the task or uses destructive git cleanup."],
+    "failurePrevented": ["Coding agents mix another person's edits into the task or use destructive git cleanup."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "Create an isolated workspace for the pipeline task, record existing repository changes, and keep unrelated dashboard or artifact edits out of the diff."
@@ -48,7 +48,7 @@
     "inputs": ["Target branch", "Current git status", "Spec or task scope"],
     "outputs": ["Safe implementation workspace", "Clean scope boundary", "Documented starting state"],
     "antipatterns": ["Working from a dirty shared branch without checking status", "Resetting files that belong to someone else"],
-    "doneCriteria": ["The coding agent can name the exact workspace and unrelated changes that must remain untouched."]
+    "doneCriteria": ["Coding agents can name the exact workspace and unrelated changes that must remain untouched."]
   },
   {
     "slug": "implementation-planning",
@@ -57,7 +57,7 @@
     "goal": "Break the spec-driven contract into ordered, testable implementation steps with files, verification commands, and review checkpoints.",
     "skillMapping": ["superpowers:writing-plans"],
     "artifactEvidence": ["Implementation plan", "Task ordering", "Per-task verification commands"],
-    "failurePrevented": ["The coding agent jumps into a broad feature and loses track of dependencies or acceptance criteria."],
+    "failurePrevented": ["Coding agents jump into a broad feature and lose track of dependencies or acceptance criteria."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "Plan separate tasks for schema parsing, validation, storage writes, error handling, and end-to-end verification instead of one giant pipeline change."
@@ -71,10 +71,10 @@
     "slug": "workspace-setup",
     "title": "Execution",
     "kicker": "Implement the plan in order",
-    "goal": "Use Superpowers execution discipline so the coding agent follows the spec-driven plan, updates progress, handles blockers explicitly, and avoids unauthorized scope expansion.",
+    "goal": "Use Superpowers execution discipline so coding agents follow the spec-driven plan, update progress, handle blockers explicitly, and avoid unauthorized scope expansion.",
     "skillMapping": ["superpowers:executing-plans", "superpowers:subagent-driven-development"],
     "artifactEvidence": ["Task checklist", "Progress updates", "Scoped diff matching the plan"],
-    "failurePrevented": ["The coding agent implements later redesign work or unrelated rendering changes while completing a data-only task."],
+    "failurePrevented": ["Coding agents implement later redesign work or unrelated rendering changes while completing a data-only task."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "Execute the planned parser, validation, and storage tasks in order, stopping for clarification if an acceptance criterion is missing."
@@ -91,7 +91,7 @@
     "goal": "Apply Superpowers spec-driven TDD by writing a focused failing test before production changes, confirming the RED failure, then implementing the smallest change that makes it GREEN.",
     "skillMapping": ["superpowers:test-driven-development"],
     "artifactEvidence": ["RED test output", "GREEN test output", "Regression test committed with the behavior"],
-    "failurePrevented": ["The coding agent writes code first and later adds tests that only mirror the implementation."],
+    "failurePrevented": ["Coding agents write code first and later add tests that only mirror the implementation."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "First write a failing test for rejected malformed records or schema drift, verify the failure, then implement the minimal pipeline behavior."
@@ -108,7 +108,7 @@
     "goal": "Use Superpowers spec-driven systematic debugging to reproduce failures, gather evidence, isolate root cause, and verify the fix against the original symptom.",
     "skillMapping": ["superpowers:systematic-debugging"],
     "artifactEvidence": ["Failure statement", "Minimal reproduction", "Verified root-cause fix"],
-    "failurePrevented": ["The coding agent guesses at changes and accidentally masks the real issue."],
+    "failurePrevented": ["Coding agents guess at changes and accidentally mask the real issue."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "When duplicate records appear, reproduce the case, inspect idempotency keys and retry logs, then add a targeted test before changing pipeline logic."
@@ -125,7 +125,7 @@
     "goal": "Use Superpowers spec-driven review workflows to request and receive rigorous feedback focused on correctness, regression risk, spec alignment, and missing tests.",
     "skillMapping": ["superpowers:requesting-code-review", "superpowers:receiving-code-review"],
     "artifactEvidence": ["Review request with scope and evidence", "Findings prioritized by severity", "Disposition for each finding"],
-    "failurePrevented": ["The coding agent treats review as style feedback and misses behavioral or verification gaps."],
+    "failurePrevented": ["Coding agents treat review as style feedback and miss behavioral or verification gaps."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "Ask reviewers to check schema handling, retry semantics, observability, and test coverage against the ingestion-pipeline specification."
@@ -142,7 +142,7 @@
     "goal": "Use Superpowers spec-driven verification to run fresh commands, read outputs, check requirements directly, and only then report what is passing or incomplete.",
     "skillMapping": ["superpowers:verification-before-completion"],
     "artifactEvidence": ["Fresh command output", "Requirement checklist", "Residual risk notes"],
-    "failurePrevented": ["The coding agent says the work should pass without current evidence."],
+    "failurePrevented": ["Coding agents say the work should pass without current evidence."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "Run unit, integration, and representative end-to-end checks for the pipeline, then report exact pass/fail counts and unresolved risks."
@@ -159,7 +159,7 @@
     "goal": "Use Superpowers spec-driven branch completion to commit only scoped changes, report exact verification evidence, and prepare the branch for PR, merge, or follow-on tasks.",
     "skillMapping": ["superpowers:finishing-a-development-branch"],
     "artifactEvidence": ["Scoped commit", "Changed-file list", "Red/green verification summary"],
-    "failurePrevented": ["The coding agent commits unrelated files or claims completion without a traceable diff and test record."],
+    "failurePrevented": ["Coding agents commit unrelated files or claim completion without a traceable diff and test record."],
     "example": {
       "task": "Need to build an ingestion pipeline",
       "superpowersMove": "After verification, commit only the pipeline files, include the requested message, and report the hash plus exact tests run."
