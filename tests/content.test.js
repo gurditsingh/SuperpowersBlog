@@ -5,6 +5,7 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const PHASES_PATH = path.join(ROOT, 'assets/data/phases.json');
+const siteData = require('../assets/data/site.json');
 const { bootstrapPhaseRoot, renderArtifactsPage, renderPhasePage } = require('../assets/app.js');
 
 const expectedLifecycle = [
@@ -314,21 +315,11 @@ test('renderArtifactsPage emits the Databricks scenario and spec package section
   assert.doesNotMatch(markup, /<unsafe>/);
 });
 
-const homepagePhaseLabels = [
-  'Fundamentals',
-  'Phase 1 - Discovery',
-  'Phase 2 - Specification',
-  'Phase 3 - Implementation Planning',
-  'Phase 4 - Environment and Workspace Setup',
-  'Phase 5 - Test-Driven Development',
-  'Phase 6 - Systematic Debugging',
-  'Phase 7 - Code Review',
-  'Phase 8 - Verification',
-  'Phase 9 - Completion',
-];
-
 test('homepage includes full phase map and sample spec package CTA', () => {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const homepagePhaseLabels = siteData.pages
+    .filter((page) => page.path.startsWith('phases/'))
+    .map((page) => page.label);
 
   assert.match(html, /Superpowers spec-driven development/i);
   assert.match(html, /why spec-driven development matters/i);
