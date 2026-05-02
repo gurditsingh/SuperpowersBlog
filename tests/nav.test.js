@@ -135,12 +135,16 @@ test('visual system CSS exposes lifecycle console contracts', () => {
 
 test('css includes mobile drawer and desktop left navigation breakpoints', () => {
   const css = fs.readFileSync(path.join(ROOT, 'assets/styles.css'), 'utf8');
+  const mobileBreakpointStart = css.search(/@media\s*\(max-width:\s*860px\)/);
+  const mobileCss = mobileBreakpointStart >= 0 ? css.slice(mobileBreakpointStart) : '';
 
-  assert.match(css, /\.sidebar\s*\{/);
-  assert.match(css, /position:\s*fixed/);
+  assert.match(css, /\.sidebar\s*\{[\s\S]*position:\s*fixed/);
   assert.match(css, /\.drawer-backdrop/);
-  assert.match(css, /max-width:\s*860px/);
-  assert.match(css, /grid-template-columns:\s*1fr/);
+  assert.ok(mobileBreakpointStart >= 0, 'expected mobile breakpoint at max-width: 860px');
+  assert.match(
+    mobileCss,
+    /\.phase-grid,\s*[\s\S]*\.phase-map,\s*[\s\S]*form\[data-simulation-form\],\s*[\s\S]*\.simulation-comparison\s+\.phase-grid\s*\{[\s\S]*grid-template-columns:\s*1fr/,
+  );
 });
 
 test('rendered navigation includes aria-current only on the current page', () => {
