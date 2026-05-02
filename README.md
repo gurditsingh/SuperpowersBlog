@@ -20,4 +20,4 @@ node --test tests/simulation.test.js
 
 1. Push this branch and merge it to `main` when verification passes.
 2. In the repository settings, configure GitHub Pages to publish from the branch root.
-3. Keep all links and assets relative, such as `./...`, `../...`, or bare relative paths like `assets/...`; do not use absolute root paths like `href="/..."` or `src="/..."`.
+3. Keep all links and assets relative with safe forms such as `./...`, `../...`, or bare relative paths like `assets/...`; do not use root-relative paths like `href="/..."` or `src="/..."`.

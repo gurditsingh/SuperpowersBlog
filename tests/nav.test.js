@@ -57,8 +57,8 @@ test('html pages do not use absolute root paths for links or assets', () => {
   for (const page of pages) {
     const content = fs.readFileSync(path.join(ROOT, page), 'utf8');
 
-    assert.doesNotMatch(content, /href="\//, `${page} should not use href="/`);
-    assert.doesNotMatch(content, /src="\//, `${page} should not use src="/`);
+    assert.doesNotMatch(content, /\bhref\s*=\s*["']\//i, `${page} should not use root-relative href attributes`);
+    assert.doesNotMatch(content, /\bsrc\s*=\s*["']\//i, `${page} should not use root-relative src attributes`);
   }
 });
 
