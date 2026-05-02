@@ -151,6 +151,16 @@
       updateSidebarInteractivity(isOpen);
     }
 
+    function syncViewportState() {
+      if (!isMobile()) {
+        setOpen(false);
+        updateSidebarInteractivity(true);
+        return;
+      }
+
+      updateSidebarInteractivity(toggle.getAttribute('aria-expanded') === 'true');
+    }
+
     toggle.addEventListener('click', function () {
       setOpen(toggle.getAttribute('aria-expanded') !== 'true');
     });
@@ -159,16 +169,12 @@
     });
 
     if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
-      mobileQuery.addEventListener('change', function () {
-        updateSidebarInteractivity(toggle.getAttribute('aria-expanded') === 'true');
-      });
+      mobileQuery.addEventListener('change', syncViewportState);
     } else if (mobileQuery && typeof mobileQuery.addListener === 'function') {
-      mobileQuery.addListener(function () {
-        updateSidebarInteractivity(toggle.getAttribute('aria-expanded') === 'true');
-      });
+      mobileQuery.addListener(syncViewportState);
     }
 
-    updateSidebarInteractivity(toggle.getAttribute('aria-expanded') === 'true');
+    syncViewportState();
 
     return true;
   }

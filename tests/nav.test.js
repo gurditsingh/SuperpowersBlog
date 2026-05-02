@@ -248,6 +248,140 @@ test('bootstrapDrawer toggles the mobile drawer and closes on backdrop click', (
   }
 });
 
+test('bootstrapDrawer initializes desktop drawer as closed and interactive', () => {
+  function createElement(attributes = {}) {
+    return {
+      attributes,
+      hidden: false,
+      listeners: {},
+      getAttribute(name) {
+        return this.attributes[name] || null;
+      },
+      setAttribute(name, value) {
+        this.attributes[name] = String(value);
+      },
+      removeAttribute(name) {
+        delete this.attributes[name];
+      },
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+    };
+  }
+
+  const toggle = createElement({ 'aria-expanded': 'true' });
+  const shell = createElement({ 'data-drawer-open': 'true' });
+  const backdrop = createElement();
+  const sidebar = createElement({ inert: '', 'aria-hidden': 'true' });
+  backdrop.hidden = false;
+  const documentStub = {
+    querySelector(selector) {
+      return {
+        '[data-drawer-toggle]': toggle,
+        '[data-app-shell]': shell,
+        '[data-drawer-backdrop]': backdrop,
+        '[data-sidebar]': sidebar,
+      }[selector];
+    },
+  };
+  const previousWindow = global.window;
+  global.window = {
+    matchMedia(query) {
+      assert.equal(query, '(max-width: 860px)');
+      return {
+        matches: false,
+        addEventListener() {},
+      };
+    },
+  };
+
+  try {
+    assert.equal(bootstrapDrawer(documentStub), true);
+
+    assert.equal(shell.getAttribute('data-drawer-open'), 'false');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(backdrop.hidden, true);
+    assert.equal('inert' in sidebar.attributes, false);
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'false');
+  } finally {
+    global.window = previousWindow;
+  }
+});
+
+test('bootstrapDrawer closes an open mobile drawer when viewport changes to desktop', () => {
+  function createElement(attributes = {}) {
+    return {
+      attributes,
+      hidden: false,
+      listeners: {},
+      getAttribute(name) {
+        return this.attributes[name] || null;
+      },
+      setAttribute(name, value) {
+        this.attributes[name] = String(value);
+      },
+      removeAttribute(name) {
+        delete this.attributes[name];
+      },
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+    };
+  }
+
+  let mediaChangeHandler;
+  const mediaQuery = {
+    matches: true,
+    addEventListener(name, handler) {
+      if (name === 'change') {
+        mediaChangeHandler = handler;
+      }
+    },
+  };
+  const toggle = createElement({ 'aria-expanded': 'false' });
+  const shell = createElement();
+  const backdrop = createElement();
+  const sidebar = createElement();
+  backdrop.hidden = true;
+  const documentStub = {
+    querySelector(selector) {
+      return {
+        '[data-drawer-toggle]': toggle,
+        '[data-app-shell]': shell,
+        '[data-drawer-backdrop]': backdrop,
+        '[data-sidebar]': sidebar,
+      }[selector];
+    },
+  };
+  const previousWindow = global.window;
+  global.window = {
+    matchMedia(query) {
+      assert.equal(query, '(max-width: 860px)');
+      return mediaQuery;
+    },
+  };
+
+  try {
+    assert.equal(bootstrapDrawer(documentStub), true);
+
+    toggle.listeners.click();
+    assert.equal(shell.getAttribute('data-drawer-open'), 'true');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'true');
+    assert.equal(backdrop.hidden, false);
+
+    mediaQuery.matches = false;
+    mediaChangeHandler();
+
+    assert.equal(shell.getAttribute('data-drawer-open'), 'false');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(backdrop.hidden, true);
+    assert.equal('inert' in sidebar.attributes, false);
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'false');
+  } finally {
+    global.window = previousWindow;
+  }
+});
+
 for (const page of requiredPages) {
   test(`${page.path} exposes skip link and main-content landmark`, () => {
     const content = fs.readFileSync(path.join(ROOT, page.path), 'utf8');
