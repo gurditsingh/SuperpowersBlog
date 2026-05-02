@@ -23,6 +23,8 @@ const requiredPages = [
   { path: 'phases/completion.html', scriptSrc: '../assets/app.js' },
 ];
 
+const corePages = ['index.html', 'simulation.html', 'artifacts.html'];
+
 test('assets/app.js exists', () => {
   const appJsPath = path.join(ROOT, 'assets/app.js');
   assert.equal(fs.existsSync(appJsPath), true, 'assets/app.js should exist');
@@ -96,6 +98,15 @@ test('rendered navigation marks home current for github pages project-root URL',
   assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
   assert.match(markup, /<a href="\.\/index\.html" aria-current="page">Home<\/a>/);
 });
+
+for (const pagePath of corePages) {
+  test(`${pagePath} exposes skip link and main-content landmark`, () => {
+    const content = fs.readFileSync(path.join(ROOT, pagePath), 'utf8');
+
+    assert.match(content, /href=["']#main-content["']/, `${pagePath} should include a skip link to main content`);
+    assert.match(content, /<main\b[^>]*\bid=["']main-content["']/, `${pagePath} should expose main id="main-content"`);
+  });
+}
 
 for (const page of requiredPages) {
   test(`${page.path} exists and includes nav root and exact app script`, () => {
