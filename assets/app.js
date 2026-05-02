@@ -48,6 +48,21 @@
       .replace(/"/g, '&quot;');
   }
 
+  function renderList(items) {
+    return '<ul>' + items.map(function (item) {
+      return '<li>' + escapeHtml(item) + '</li>';
+    }).join('') + '</ul>';
+  }
+
+  function renderPhaseSection(title, items) {
+    return (
+      '<section class="phase-section">' +
+      '<h2>' + escapeHtml(title) + '</h2>' +
+      renderList(items) +
+      '</section>'
+    );
+  }
+
   function renderNavigation(options) {
     var links = buildNavigationLinks(options.pages, options.base, options.currentPath);
     var pageLabel = options.pageLabel || 'Superpowers Blog';
@@ -64,6 +79,22 @@
       '<h1 class="page-title">' + escapeHtml(pageLabel) + '</h1>' +
       '<p class="page-subtitle">Spec-driven blog work in progress.</p>' +
       '</div>'
+    );
+  }
+
+  function renderPhasePage(phase) {
+    return (
+      '<article class="site-shell phase-page" data-rendered-phase="' + escapeHtml(phase.slug) + '">' +
+      '<p class="phase-kicker">' + escapeHtml(phase.kicker || 'Superpowers phase') + '</p>' +
+      '<h1 class="phase-title">' + escapeHtml(phase.title) + '</h1>' +
+      '<p class="phase-goal">' + escapeHtml(phase.goal) + '</p>' +
+      '<div class="phase-grid">' +
+      renderPhaseSection('Inputs', phase.inputs || []) +
+      renderPhaseSection('Outputs', phase.outputs || []) +
+      renderPhaseSection('Antipatterns', phase.antipatterns || []) +
+      renderPhaseSection('Done Criteria', phase.doneCriteria || []) +
+      '</div>' +
+      '</article>'
     );
   }
 
@@ -119,17 +150,53 @@
       });
   }
 
+  function bootstrapPhaseRoot(doc) {
+    var phaseRoot = doc.querySelector('[data-phase-root]');
+    if (!phaseRoot) {
+      return Promise.resolve(false);
+    }
+
+    var slug = phaseRoot.getAttribute('data-phase-slug');
+    var base = phaseRoot.getAttribute('data-phase-base') || phaseRoot.getAttribute('data-nav-base') || '.';
+    var dataUrl = normalizeBasePrefix(base) + 'assets/data/phases.json';
+
+    return fetch(dataUrl)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Unable to load phase data: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(function (phases) {
+        var phase = phases.find(function (item) {
+          return item.slug === slug;
+        });
+        if (!phase) {
+          throw new Error('Unknown phase slug: ' + slug);
+        }
+
+        phaseRoot.innerHTML = renderPhasePage(phase);
+        phaseRoot.setAttribute('data-phase-bootstrapped', 'true');
+        return true;
+      });
+  }
+
   return {
     buildNavigationLinks: buildNavigationLinks,
     currentPathFromLocation: currentPathFromLocation,
     normalizeBasePrefix: normalizeBasePrefix,
     renderNavigation: renderNavigation,
-    bootstrapNavigationRoot: bootstrapNavigationRoot
+    renderPhasePage: renderPhasePage,
+    bootstrapNavigationRoot: bootstrapNavigationRoot,
+    bootstrapPhaseRoot: bootstrapPhaseRoot
   };
 });
 
 if (typeof document !== 'undefined' && typeof fetch === 'function') {
   globalThis.SuperpowerBlogNav.bootstrapNavigationRoot(document, window.location).catch(function (error) {
+    console.error(error);
+  });
+  globalThis.SuperpowerBlogNav.bootstrapPhaseRoot(document).catch(function (error) {
     console.error(error);
   });
 }
