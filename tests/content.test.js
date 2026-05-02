@@ -5,7 +5,7 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const PHASES_PATH = path.join(ROOT, 'assets/data/phases.json');
-const { bootstrapPhaseRoot, renderPhasePage } = require('../assets/app.js');
+const { bootstrapPhaseRoot, renderArtifactsPage, renderPhasePage } = require('../assets/app.js');
 
 const expectedSlugs = [
   'fundamentals',
@@ -184,3 +184,87 @@ for (const slug of expectedSlugs) {
     assert.match(html, new RegExp(`data-phase-slug=["']${slug}["']`), `${slug} should identify its phase slug`);
   });
 }
+
+const SCENARIO_PATH = path.join(ROOT, 'assets/data/scenario.json');
+const ARTIFACTS_PATH = path.join(ROOT, 'assets/data/artifacts.json');
+const requiredDatabricksComponents = [
+  'Data Lakehouse',
+  'Databricks SQL',
+  'Delta Lake',
+  'Unity Catalog',
+  'Lakebase',
+];
+const requiredArtifactSections = [
+  'Discovery brief',
+  'Formal specification excerpt',
+  'Implementation plan excerpt',
+  'TDD matrix',
+  'Debug log narrative',
+  'Review findings and dispositions',
+  'Verification checklist and sign-off criteria',
+];
+
+function collectText(value) {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map(collectText).join(' ');
+  }
+  if (value && typeof value === 'object') {
+    return Object.values(value).map(collectText).join(' ');
+  }
+  return '';
+}
+
+test('Databricks scenario and artifacts data include all required components', () => {
+  assert.equal(fs.existsSync(SCENARIO_PATH), true, 'assets/data/scenario.json should exist');
+  assert.equal(fs.existsSync(ARTIFACTS_PATH), true, 'assets/data/artifacts.json should exist');
+
+  const scenarioText = collectText(readJson(SCENARIO_PATH));
+  const artifacts = readJson(ARTIFACTS_PATH);
+  const artifactsText = collectText(artifacts);
+
+  for (const component of requiredDatabricksComponents) {
+    assert.match(scenarioText, new RegExp(component), `scenario should mention ${component}`);
+    assert.match(artifactsText, new RegExp(component), `artifacts should mention ${component}`);
+  }
+
+  assert.deepEqual(
+    artifacts.sections.map((section) => section.title),
+    requiredArtifactSections,
+    'artifacts should include the complete sample spec package section set',
+  );
+});
+
+test('renderArtifactsPage emits the Databricks scenario and spec package sections safely', () => {
+  assert.equal(typeof renderArtifactsPage, 'function', 'assets/app.js should export renderArtifactsPage');
+
+  const markup = renderArtifactsPage(
+    {
+      title: 'Retail receipts to analytics on Databricks',
+      summary: 'A Data Lakehouse path using Delta Lake and Unity Catalog.',
+      components: [{ name: 'Lakebase', role: 'Serves operational receipt lookups.' }],
+      flow: ['Databricks SQL dashboards publish governed KPIs.'],
+    },
+    {
+      sections: [
+        {
+          title: 'Discovery brief',
+          summary: 'Stakeholders align on scope.',
+          items: ['Formal specification excerpt <unsafe>'],
+        },
+      ],
+    },
+  );
+
+  assert.match(markup, /Retail receipts to analytics on Databricks/);
+  assert.match(markup, /Data Lakehouse/);
+  assert.match(markup, /Databricks SQL/);
+  assert.match(markup, /Delta Lake/);
+  assert.match(markup, /Unity Catalog/);
+  assert.match(markup, /Lakebase/);
+  assert.match(markup, /Discovery brief/);
+  assert.match(markup, /Formal specification excerpt &lt;unsafe&gt;/);
+  assert.doesNotMatch(markup, /<unsafe>/);
+});

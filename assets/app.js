@@ -98,11 +98,66 @@
     );
   }
 
+  function renderScenarioComponents(components) {
+    return '<div class="phase-grid">' + (components || []).map(function (component) {
+      return (
+        '<section class="phase-section">' +
+        '<h3>' + escapeHtml(component.name) + '</h3>' +
+        '<p>' + escapeHtml(component.role) + '</p>' +
+        '</section>'
+      );
+    }).join('') + '</div>';
+  }
+
+  function renderArtifactSection(section) {
+    return (
+      '<section class="phase-section">' +
+      '<h2>' + escapeHtml(section.title) + '</h2>' +
+      '<p>' + escapeHtml(section.summary || '') + '</p>' +
+      renderList(section.items || []) +
+      '</section>'
+    );
+  }
+
+  function renderArtifactsPage(scenario, artifacts) {
+    var flow = scenario.dataFlow || scenario.flow || [];
+    return (
+      '<article class="site-shell phase-page artifacts-page">' +
+      '<p class="phase-kicker">Databricks sample scenario</p>' +
+      '<h1 class="phase-title">' + escapeHtml(scenario.title) + '</h1>' +
+      '<p class="phase-goal">' + escapeHtml(scenario.summary) + '</p>' +
+      '<section class="phase-section">' +
+      '<h2>Scenario</h2>' +
+      '<p>' + escapeHtml(scenario.businessGoal || '') + '</p>' +
+      renderList(flow) +
+      '</section>' +
+      '<section class="phase-section">' +
+      '<h2>Databricks Components</h2>' +
+      renderScenarioComponents(scenario.components || []) +
+      '</section>' +
+      '<section class="phase-section">' +
+      '<h2>' + escapeHtml(artifacts.title || 'Sample spec package') + '</h2>' +
+      '<p>' + escapeHtml(artifacts.summary || '') + '</p>' +
+      '</section>' +
+      (artifacts.sections || []).map(renderArtifactSection).join('') +
+      '</article>'
+    );
+  }
+
   function renderPhaseFallback() {
     return (
       '<article class="site-shell phase-page phase-page--fallback">' +
       '<h1 class="phase-title">Phase content unavailable</h1>' +
       '<p class="phase-goal">The structured phase content could not be loaded. Try refreshing the page.</p>' +
+      '</article>'
+    );
+  }
+
+  function renderArtifactsFallback() {
+    return (
+      '<article class="site-shell phase-page phase-page--fallback">' +
+      '<h1 class="phase-title">Artifacts unavailable</h1>' +
+      '<p class="phase-goal">The Databricks scenario and sample spec package could not be loaded. Try refreshing the page.</p>' +
       '</article>'
     );
   }
@@ -195,12 +250,47 @@
       });
   }
 
+  function bootstrapArtifactsRoot(doc) {
+    var artifactsRoot = doc.querySelector('[data-artifacts-root]');
+    if (!artifactsRoot) {
+      return Promise.resolve(false);
+    }
+
+    var base = artifactsRoot.getAttribute('data-artifacts-base') || artifactsRoot.getAttribute('data-nav-base') || '.';
+    var prefix = normalizeBasePrefix(base);
+
+    return Promise.all([
+      fetch(prefix + 'assets/data/scenario.json'),
+      fetch(prefix + 'assets/data/artifacts.json')
+    ])
+      .then(function (responses) {
+        return Promise.all(responses.map(function (response) {
+          if (!response.ok) {
+            throw new Error('Unable to load artifacts data: ' + response.status);
+          }
+          return response.json();
+        }));
+      })
+      .then(function (payloads) {
+        artifactsRoot.innerHTML = renderArtifactsPage(payloads[0], payloads[1]);
+        artifactsRoot.setAttribute('data-artifacts-bootstrapped', 'true');
+        return true;
+      })
+      .catch(function () {
+        artifactsRoot.innerHTML = renderArtifactsFallback();
+        artifactsRoot.setAttribute('data-artifacts-error', 'true');
+        return false;
+      });
+  }
+
   return {
     buildNavigationLinks: buildNavigationLinks,
     currentPathFromLocation: currentPathFromLocation,
     normalizeBasePrefix: normalizeBasePrefix,
     renderNavigation: renderNavigation,
+    renderArtifactsPage: renderArtifactsPage,
     renderPhasePage: renderPhasePage,
+    bootstrapArtifactsRoot: bootstrapArtifactsRoot,
     bootstrapNavigationRoot: bootstrapNavigationRoot,
     bootstrapPhaseRoot: bootstrapPhaseRoot
   };
@@ -211,6 +301,9 @@ if (typeof document !== 'undefined' && typeof fetch === 'function') {
     console.error(error);
   });
   globalThis.SuperpowerBlogNav.bootstrapPhaseRoot(document).catch(function (error) {
+    console.error(error);
+  });
+  globalThis.SuperpowerBlogNav.bootstrapArtifactsRoot(document).catch(function (error) {
     console.error(error);
   });
 }
