@@ -38,6 +38,30 @@ function collectHtmlPages(dir = ROOT) {
     .sort();
 }
 
+function extractCssBlock(source, startPattern) {
+  const match = startPattern.exec(source);
+  assert.ok(match, `expected CSS block matching ${startPattern}`);
+
+  const start = match.index;
+  const open = source.indexOf('{', start);
+  assert.notEqual(open, -1, `expected opening brace for ${startPattern}`);
+
+  let depth = 0;
+  for (let index = open; index < source.length; index += 1) {
+    if (source[index] === '{') {
+      depth += 1;
+    }
+    if (source[index] === '}') {
+      depth -= 1;
+    }
+    if (depth === 0) {
+      return source.slice(start, index + 1);
+    }
+  }
+
+  assert.fail(`unterminated CSS block matching ${startPattern}`);
+}
+
 const requiredPages = [
   { path: 'index.html', scriptSrc: 'assets/app.js' },
   { path: 'artifacts.html', scriptSrc: 'assets/app.js' },
@@ -135,15 +159,14 @@ test('visual system CSS exposes lifecycle console contracts', () => {
 
 test('css includes mobile drawer and desktop left navigation breakpoints', () => {
   const css = fs.readFileSync(path.join(ROOT, 'assets/styles.css'), 'utf8');
-  const mobileBreakpointStart = css.search(/@media\s*\(max-width:\s*860px\)/);
-  const mobileCss = mobileBreakpointStart >= 0 ? css.slice(mobileBreakpointStart) : '';
+  const sidebarBlock = extractCssBlock(css, /\.sidebar\s*\{/);
+  const mobileCss = extractCssBlock(css, /@media\s*\(max-width:\s*860px\)\s*\{/);
 
-  assert.match(css, /\.sidebar\s*\{[\s\S]*position:\s*fixed/);
+  assert.match(sidebarBlock, /position:\s*fixed/);
   assert.match(css, /\.drawer-backdrop/);
-  assert.ok(mobileBreakpointStart >= 0, 'expected mobile breakpoint at max-width: 860px');
   assert.match(
     mobileCss,
-    /\.phase-grid,\s*[\s\S]*\.phase-map,\s*[\s\S]*form\[data-simulation-form\],\s*[\s\S]*\.simulation-comparison\s+\.phase-grid\s*\{[\s\S]*grid-template-columns:\s*1fr/,
+    /\.phase-grid,\s*\.phase-map,\s*form\[data-simulation-form\],\s*\.simulation-comparison\s+\.phase-grid\s*\{[^}]*grid-template-columns:\s*1fr/,
   );
 });
 
