@@ -120,11 +120,16 @@ test('visual system CSS exposes lifecycle console contracts', () => {
   const css = fs.readFileSync(path.join(ROOT, 'assets/styles.css'), 'utf8');
 
   assert.match(css, /--accent-teal\s*:/);
-  assert.match(css, /--accent-orange\s*:/);
+  assert.match(css, /--accent-orange\s*:\s*#ad521b/i);
   assert.match(css, /\.sidebar\b/);
   assert.match(css, /\.drawer-toggle\b/);
   assert.match(css, /@media\s*\(max-width:\s*860px\)/);
-  assert.match(css, /overflow-x:\s*hidden/);
+  assert.doesNotMatch(css, /body\s*\{[^}]*overflow-x\s*:\s*hidden/i);
+  assert.match(css, /max-width\s*:\s*100%/);
+  assert.match(css, /min-width\s*:\s*0/);
+  assert.match(css, /grid-template-columns\s*:\s*repeat\(auto-fit,\s*minmax\(min\(100%,/);
+  assert.match(css, /@media\s*\(max-width:\s*860px\)\s*\{[\s\S]*\.sidebar\s*\{[^}]*transform\s*:\s*translateX\(-105%\)/);
+  assert.match(css, /@media\s*\(max-width:\s*860px\)\s*\{[\s\S]*\.app-shell\[data-drawer-open="true"\]\s+\.sidebar\s*\{[^}]*transform\s*:\s*translateX\(0\)/);
 });
 
 test('rendered navigation includes aria-current only on the current page', () => {

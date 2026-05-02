@@ -6,7 +6,7 @@
   --muted: #61706d;
   --border: #cfd8d3;
   --accent-teal: #0f7f78;
-  --accent-orange: #c76224;
+  --accent-orange: #ad521b;
   --focus: #f2a23a;
   --sidebar-width: 18.5rem;
   --shadow-panel: 0 1rem 2.5rem rgb(22 35 32 / 10%);
@@ -22,7 +22,6 @@ html {
 
 body {
   margin: 0;
-  overflow-x: hidden;
   background:
     linear-gradient(135deg, rgb(15 127 120 / 11%) 0%, transparent 38%),
     linear-gradient(315deg, rgb(199 98 36 / 10%) 0%, transparent 34%),
@@ -51,6 +50,12 @@ a {
 
 a:hover {
   color: #0a5f5a;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
 }
 
 button,
