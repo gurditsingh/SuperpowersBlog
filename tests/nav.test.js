@@ -7,6 +7,19 @@ const ROOT = path.resolve(__dirname, '..');
 const siteData = require('../assets/data/site.json');
 const { buildNavigationLinks, currentPathFromLocation, renderNavigation } = require('../assets/app.js');
 
+function collectHtmlPages(dir = ROOT) {
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .flatMap((entry) => {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        return collectHtmlPages(fullPath);
+      }
+      return entry.isFile() && entry.name.endsWith('.html') ? [path.relative(ROOT, fullPath)] : [];
+    })
+    .sort();
+}
+
 const requiredPages = [
   { path: 'index.html', scriptSrc: 'assets/app.js' },
   { path: 'artifacts.html', scriptSrc: 'assets/app.js' },
@@ -35,6 +48,18 @@ test('index navigation includes required links', () => {
   assert.match(content, /href=["']\.\/phases\/discovery\.html["']/);
   assert.match(content, /href=["']\.\/simulation\.html["']/);
   assert.match(content, /href=["']\.\/artifacts\.html["']/);
+});
+
+test('html pages do not use absolute root paths for links or assets', () => {
+  const pages = collectHtmlPages();
+  assert.ok(pages.length > 0, 'expected at least one HTML page to validate');
+
+  for (const page of pages) {
+    const content = fs.readFileSync(path.join(ROOT, page), 'utf8');
+
+    assert.doesNotMatch(content, /href="\//, `${page} should not use href="/`);
+    assert.doesNotMatch(content, /src="\//, `${page} should not use src="/`);
+  }
 });
 
 test('generated root navigation includes every site page with root-relative hrefs', () => {
