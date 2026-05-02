@@ -226,6 +226,76 @@
     };
   }
 
+  function buildGeneratedViews(normalized, warnings) {
+    var deliveryProfile = normalized.mode + ' delivery with ' + normalized.governance + ' governance, ' + normalized.quality + ' quality, and a ' + normalized.tradeoff + ' optimization posture';
+
+    return [
+      {
+        id: 'discovery-output-summary',
+        title: 'Discovery output summary',
+        items: [
+          'Finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse.',
+          'Success means trusted Delta Lake tables, Databricks SQL reconciliation, and Lakebase lookup behavior are defined before build.',
+          'Chosen scenario profile: ' + deliveryProfile + '.'
+        ]
+      },
+      {
+        id: 'spec-boundary-choices',
+        title: 'Spec boundary choices',
+        items: [
+          'In scope: bronze receipt ingestion, silver validation, gold reporting marts, Unity Catalog access rules, and Lakebase serving sync.',
+          'Out of scope: loyalty personalization, refunds workflow automation, and non-receipt customer 360 expansion.',
+          'Acceptance boundaries cover schema drift, quarantine behavior, freshness budgets, lineage, and dashboard reconciliation.'
+        ]
+      },
+      {
+        id: 'task-plan-breakdown',
+        title: 'Task plan breakdown',
+        items: [
+          'Create Delta Lake contracts and fixtures before transformation work.',
+          'Implement ingestion, validation, governance, SQL dashboard, and Lakebase sync tasks in dependency order.',
+          'Attach every task to at least one test, review checkpoint, or verification command.'
+        ]
+      },
+      {
+        id: 'test-first-sequence',
+        title: 'Test-first sequence',
+        items: [
+          'RED: malformed receipts are quarantined before silver promotion.',
+          'GREEN: validation logic writes accepted and rejected records to the expected Delta paths.',
+          'REFACTOR: keep quality rules readable while preserving Databricks SQL acceptance checks.'
+        ]
+      },
+      {
+        id: 'debugging-path',
+        title: 'Debugging path',
+        items: [
+          'Reproduce dashboard reconciliation drift with a focused receipt fixture.',
+          'Inspect Delta quality results, Unity Catalog lineage, and Lakebase sync timing separately.',
+          'Fix the proven root cause only, then rerun the failing test and workflow verification.'
+        ]
+      },
+      {
+        id: 'review-findings-snapshot',
+        title: 'Review findings snapshot',
+        items: [
+          'High: reject schema drift before shared Databricks SQL surfaces consume receipt totals.',
+          'Medium: document Unity Catalog grant review ownership before broad dashboard rollout.',
+          'Low: keep sample artifact links relative for GitHub Pages deployment.'
+        ]
+      },
+      {
+        id: 'verification-outcome-report',
+        title: 'Verification outcome report',
+        items: [
+          'Status: ' + (warnings.length ? 'PASS_WITH_WARNINGS' : 'PASS') + '.',
+          'Checks cover freshness, quarantine rate, dashboard reconciliation, lineage, and Lakebase synchronization.',
+          warnings.length ? 'Residual warnings: ' + warnings.join(' ') : 'No residual warnings for the selected deterministic profile.'
+        ]
+      }
+    ];
+  }
+
   function evaluateScenario(input) {
     var normalized = normalizeScenarioInput(input);
     var warnings = [];
@@ -242,6 +312,8 @@
       warnings.push('High quality gates should quarantine malformed receipts before silver Delta Lake tables are promoted.');
     }
 
+    var generatedViews = buildGeneratedViews(normalized, warnings);
+
     return {
       input: normalized,
       scenario: {
@@ -257,24 +329,67 @@
       },
       phases: [
         {
+          id: 'fundamentals',
+          title: 'Fundamentals',
+          output: 'Anchor the team on spec-driven development: discovery precedes specification, tests precede implementation, and verification precedes completion claims.',
+          concepts: [scenarioConcepts.lakehouse]
+        },
+        {
           id: 'discovery',
           title: 'Discovery',
           output: 'Confirm finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse.',
           concepts: [scenarioConcepts.lakehouse, scenarioConcepts.analytics]
         },
         {
-          id: 'plan',
-          title: 'Plan',
-          output: 'Route bronze receipt events through Delta Lake quality gates, classify sensitive fields in Unity Catalog, and publish support-ready records to Lakebase.',
+          id: 'specification',
+          title: 'Specification',
+          output: 'Lock receipt schemas, quality thresholds, lineage expectations, access rules, SLA targets, and dashboard acceptance checks before planning work.',
+          concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.analytics]
+        },
+        {
+          id: 'implementation-planning',
+          title: 'Implementation Planning',
+          output: 'Break the specification into ordered ingestion, validation, governance, SQL analytics, and Lakebase serving tasks.',
           concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.serving]
+        },
+        {
+          id: 'workspace-setup',
+          title: 'Environment and Workspace Setup',
+          output: 'Confirm repository state, preserve relative GitHub Pages paths, and isolate scoped changes before implementation begins.',
+          concepts: [scenarioConcepts.lakehouse]
+        },
+        {
+          id: 'tdd',
+          title: 'Test-Driven Development',
+          output: 'Write failing tests for receipt validation, Delta quarantine behavior, dashboard reconciliation, and serving synchronization before code changes.',
+          concepts: [scenarioConcepts.storage, scenarioConcepts.analytics, scenarioConcepts.serving]
+        },
+        {
+          id: 'systematic-debugging',
+          title: 'Systematic Debugging',
+          output: 'When tests or jobs fail, isolate whether the cause is schema drift, quality rules, grants, dashboard SQL, or serving sync timing.',
+          concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.analytics, scenarioConcepts.serving]
+        },
+        {
+          id: 'code-review',
+          title: 'Code Review',
+          output: 'Review the diff against the spec, tests, governance expectations, relative paths, and residual Databricks risks.',
+          concepts: [scenarioConcepts.governance, scenarioConcepts.analytics]
         },
         {
           id: 'verification',
           title: 'Verification',
           output: 'Verify freshness, quarantine rate, dashboard reconciliation, lineage, and serving sync before sign-off.',
           concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.analytics, scenarioConcepts.serving]
+        },
+        {
+          id: 'completion',
+          title: 'Completion',
+          output: 'Package the branch with a scoped commit, passing test evidence, review disposition, changed files, and next-step status.',
+          concepts: [scenarioConcepts.lakehouse]
         }
       ],
+      generatedViews: generatedViews,
       verification: {
         status: warnings.length ? 'PASS_WITH_WARNINGS' : 'PASS',
         warnings: warnings,
@@ -317,6 +432,15 @@
     );
   }
 
+  function renderGeneratedView(view) {
+    return (
+      '<section class="phase-section simulation-generated-view" data-generated-view="' + escapeHtml(view.id) + '">' +
+      '<h3>' + escapeHtml(view.title) + '</h3>' +
+      renderList(view.items || []) +
+      '</section>'
+    );
+  }
+
   function renderSimulationResult(result, options) {
     var renderOptions = options || {};
     var showFailureImpact = renderOptions.showFailureImpact !== false;
@@ -331,13 +455,19 @@
       '</section>' +
       '<div class="phase-grid">' + result.phases.map(function (phase) {
         return (
-          '<section class="phase-section">' +
+          '<section class="phase-section" data-phase-id="' + escapeHtml(phase.id) + '">' +
           '<h3>' + escapeHtml(phase.title) + '</h3>' +
           '<p>' + escapeHtml(phase.output) + '</p>' +
           renderList(phase.concepts) +
           '</section>'
         );
       }).join('') + '</div>' +
+      '<section class="phase-section simulation-generated-views">' +
+      '<h3>Generated Superpowers Views</h3>' +
+      '<div class="phase-grid">' +
+      (result.generatedViews || []).map(renderGeneratedView).join('') +
+      '</div>' +
+      '</section>' +
       '<section class="phase-section">' +
       '<h3>Verification Checks</h3>' +
       renderList(result.verification.checks) +

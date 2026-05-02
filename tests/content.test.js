@@ -268,3 +268,30 @@ test('renderArtifactsPage emits the Databricks scenario and spec package section
   assert.match(markup, /Formal specification excerpt &lt;unsafe&gt;/);
   assert.doesNotMatch(markup, /<unsafe>/);
 });
+
+const homepagePhaseLabels = [
+  'Fundamentals',
+  'Phase 1 - Discovery',
+  'Phase 2 - Specification',
+  'Phase 3 - Implementation Planning',
+  'Phase 4 - Environment and Workspace Setup',
+  'Phase 5 - Test-Driven Development',
+  'Phase 6 - Systematic Debugging',
+  'Phase 7 - Code Review',
+  'Phase 8 - Verification',
+  'Phase 9 - Completion',
+];
+
+test('homepage includes full phase map and sample spec package CTA', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+
+  assert.match(html, /Superpowers spec-driven development/i);
+  assert.match(html, /why spec-driven development matters/i);
+
+  for (const label of homepagePhaseLabels) {
+    assert.match(html, new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `homepage should include ${label}`);
+  }
+
+  assert.match(html, /href=["']\.\/artifacts\.html["']/);
+  assert.match(html, /View Full Sample Spec Package/);
+});
