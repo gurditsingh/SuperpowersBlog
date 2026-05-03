@@ -4,7 +4,7 @@
   "summary": "Evidence produced by the Superpowers lifecycle for a Databricks ingestion pipeline sample project, showing how each stage turns a vague coding-agent request into governed spec-driven delivery.",
   "sections": [
     {
-      "title": "Discovery brief",
+      "title": "Brainstorm / Design brief",
       "summary": "Brainstorm / Design lifecycle evidence captures users, goals, non-goals, and risks before the sample Databricks work begins.",
       "items": [
         "Primary users are finance analysts, merchandising leads, store operations, and customer support supervisors.",

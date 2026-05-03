@@ -122,7 +122,7 @@ test('bootstrapPhaseRoot renders visible fallback when phase slug is unknown', a
   const { doc, root } = createPhaseDocument('missing-phase');
   global.fetch = async () => ({
     ok: true,
-    json: async () => [{ slug: 'discovery', title: 'Discovery' }],
+    json: async () => [{ slug: 'discovery', title: 'Specification' }],
   });
 
   try {
@@ -223,7 +223,7 @@ const requiredDatabricksComponents = [
   'Lakebase',
 ];
 const requiredArtifactSections = [
-  'Discovery brief',
+  'Brainstorm / Design brief',
   'Formal specification excerpt',
   'Implementation plan excerpt',
   'TDD matrix',
@@ -328,7 +328,7 @@ test('renderArtifactsPage emits the Superpowers sample package and spec sections
     {
       sections: [
         {
-          title: 'Discovery brief',
+          title: 'Brainstorm / Design brief',
           summary: 'Stakeholders align on scope.',
           items: ['Formal specification excerpt <unsafe>'],
         },
@@ -343,7 +343,7 @@ test('renderArtifactsPage emits the Superpowers sample package and spec sections
   assert.match(markup, /Delta Lake/);
   assert.match(markup, /Unity Catalog/);
   assert.match(markup, /Lakebase/);
-  assert.match(markup, /Discovery brief/);
+  assert.match(markup, /Brainstorm \/ Design brief/);
   assert.match(markup, /Formal specification excerpt &lt;unsafe&gt;/);
   assert.doesNotMatch(markup, /<unsafe>/);
 });

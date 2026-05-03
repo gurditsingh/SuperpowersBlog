@@ -155,6 +155,7 @@ test('visual system CSS exposes lifecycle console contracts', () => {
   assert.match(css, /grid-template-columns\s*:\s*repeat\(auto-fit,\s*minmax\(min\(100%,/);
   assert.match(css, /@media\s*\(max-width:\s*860px\)\s*\{[\s\S]*\.sidebar\s*\{[^}]*transform\s*:\s*translateX\(-105%\)/);
   assert.match(css, /@media\s*\(max-width:\s*860px\)\s*\{[\s\S]*\.app-shell\[data-drawer-open="true"\]\s+\.sidebar\s*\{[^}]*transform\s*:\s*translateX\(0\)/);
+  assert.match(css, /@media\s*\(max-width:\s*860px\)\s*\{[\s\S]*\.app-shell\[data-drawer-open="true"\]\s+\.sidebar\s*\{[^}]*padding-top\s*:\s*4\.8rem/);
   assert.match(css, /\.simulation-phase-summary\[data-phase-status="completed"\]/);
 });
 

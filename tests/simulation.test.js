@@ -30,7 +30,7 @@ const expectedLifecycleLabels = siteData.pages
   .map((page) => page.label);
 
 const requiredGeneratedViews = [
-  'discovery output summary',
+  'brainstorm / design output summary',
   'spec boundary choices',
   'task plan breakdown',
   'test-first sequence',
@@ -172,7 +172,7 @@ test('simulation stepper preserves generated views in rendered result', async ()
   for (const viewName of requiredGeneratedViews) {
     assert.match(markup, new RegExp(viewName, 'i'), `markup should render ${viewName}`);
   }
-  assert.match(markup, /data-generated-view="discovery-output-summary"/);
+  assert.match(markup, /data-generated-view="brainstorm-design-output-summary"/);
   assert.match(markup, /data-failure-mode-impact/);
   assert.match(markup, /Superpowers vs\. Non-Spec Delivery/);
 });

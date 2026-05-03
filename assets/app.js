@@ -374,7 +374,7 @@
           slaRisk: strictHighControl ? 'Low' : 'Medium',
           qualityIncidents: strictHighControl ? 1 : 2
         },
-        summary: 'Superpowers discovery, specification, planning, TDD, and verification keep Delta contracts, Unity Catalog grants, and Databricks SQL acceptance checks aligned before release.'
+        summary: 'Superpowers Brainstorm / Design, Specification, Planning, TDD, and Verification keep Delta contracts, Unity Catalog grants, and Databricks SQL acceptance checks aligned before release.'
       },
       withoutSuperpowers: {
         label: 'Without specification discipline',
@@ -402,8 +402,8 @@
 
     return [
       {
-        id: 'discovery-output-summary',
-        title: 'Discovery output summary',
+        id: 'brainstorm-design-output-summary',
+        title: 'Brainstorm / Design output summary',
         items: [
           'Superpowers output: the vague coding-agent request is reframed as a spec-driven ingestion pipeline sample before Databricks details are chosen.',
           'Sample project context: finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse.',
@@ -509,20 +509,20 @@
         {
           id: 'fundamentals',
           title: 'Brainstorm / Design',
-          output: 'Superpowers frames the Databricks ingestion pipeline as a sample project: discovery precedes specification, tests precede implementation, and verification precedes completion claims.',
+          output: 'Turn the vague request to build an ingestion pipeline into clear users, goals, assumptions, risks, and success criteria before Databricks details are chosen.',
           concepts: [scenarioConcepts.lakehouse]
         },
         {
           id: 'discovery',
           title: 'Specification',
-          output: 'Use Superpowers brainstorming to turn the vague ingestion pipeline request into users, goals, risks, and success criteria before Databricks design choices.',
+          output: 'Write the contract for receipt schemas, quality thresholds, lineage, access rules, SLA targets, and dashboard acceptance checks.',
           concepts: [scenarioConcepts.lakehouse, scenarioConcepts.analytics]
         },
         {
           id: 'specification',
           title: 'Workspace Isolation',
-          output: 'Produce a spec-driven contract for receipt schemas, quality thresholds, lineage, access rules, SLA targets, and dashboard acceptance checks.',
-          concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.analytics]
+          output: 'Create an isolated Git workspace for the approved sample so lifecycle edits stay scoped, reviewable, and safe to abandon if the approach is wrong.',
+          concepts: [scenarioConcepts.lakehouse]
         },
         {
           id: 'implementation-planning',
@@ -533,8 +533,8 @@
         {
           id: 'workspace-setup',
           title: 'Execution',
-          output: 'Confirm repository state, preserve relative GitHub Pages paths, and isolate scoped changes before implementation begins.',
-          concepts: [scenarioConcepts.lakehouse]
+          output: 'Implement the approved plan in small increments, keeping each Databricks sample change tied to the spec, tests, and review evidence.',
+          concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.analytics, scenarioConcepts.serving]
         },
         {
           id: 'tdd',

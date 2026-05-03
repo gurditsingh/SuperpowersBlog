@@ -558,6 +558,7 @@ form[data-simulation-form] button {
   }
 
   .app-shell[data-drawer-open="true"] .sidebar {
+    padding-top: 4.8rem;
     transform: translateX(0);
   }
 
