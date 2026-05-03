@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const siteData = require('../assets/data/site.json');
 
 async function loadSimulationApi() {
   const app = await import('../assets/app.js');
@@ -23,6 +24,10 @@ const expectedPhaseIds = [
   'verification',
   'completion',
 ];
+
+const expectedLifecycleLabels = siteData.pages
+  .filter((page) => page.path.startsWith('phases/'))
+  .map((page) => page.label);
 
 const requiredGeneratedViews = [
   'discovery output summary',
@@ -51,6 +56,10 @@ test('evaluateScenario returns deterministic full Superpowers workflow for fixed
   assert.deepEqual(
     resultA.phases.map((phase) => phase.id),
     expectedPhaseIds,
+  );
+  assert.deepEqual(
+    resultA.phases.map((phase) => phase.title),
+    expectedLifecycleLabels,
   );
 
   const resultText = JSON.stringify(resultA);
@@ -90,6 +99,9 @@ test('renderSimulationResult emits all phase ids and generated views safely', as
 
   for (const phaseId of expectedPhaseIds) {
     assert.match(markup, new RegExp(`data-phase-id="${phaseId}"`), `markup should include ${phaseId}`);
+  }
+  for (const phaseLabel of expectedLifecycleLabels) {
+    assert.match(markup, new RegExp(phaseLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `markup should render ${phaseLabel}`);
   }
   for (const viewName of requiredGeneratedViews) {
     assert.match(markup, new RegExp(viewName, 'i'), `markup should render ${viewName}`);

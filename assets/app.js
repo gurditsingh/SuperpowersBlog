@@ -508,19 +508,19 @@
       phases: [
         {
           id: 'fundamentals',
-          title: 'Fundamentals',
+          title: 'Brainstorm / Design',
           output: 'Superpowers frames the Databricks ingestion pipeline as a sample project: discovery precedes specification, tests precede implementation, and verification precedes completion claims.',
           concepts: [scenarioConcepts.lakehouse]
         },
         {
           id: 'discovery',
-          title: 'Discovery',
+          title: 'Specification',
           output: 'Use Superpowers brainstorming to turn the vague ingestion pipeline request into users, goals, risks, and success criteria before Databricks design choices.',
           concepts: [scenarioConcepts.lakehouse, scenarioConcepts.analytics]
         },
         {
           id: 'specification',
-          title: 'Specification',
+          title: 'Workspace Isolation',
           output: 'Produce a spec-driven contract for receipt schemas, quality thresholds, lineage, access rules, SLA targets, and dashboard acceptance checks.',
           concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.analytics]
         },
@@ -532,7 +532,7 @@
         },
         {
           id: 'workspace-setup',
-          title: 'Environment and Workspace Setup',
+          title: 'Execution',
           output: 'Confirm repository state, preserve relative GitHub Pages paths, and isolate scoped changes before implementation begins.',
           concepts: [scenarioConcepts.lakehouse]
         },
@@ -562,7 +562,7 @@
         },
         {
           id: 'completion',
-          title: 'Completion',
+          title: 'Branch Completion',
           output: 'Package the branch with a scoped commit, passing test evidence, review disposition, changed files, and next-step status.',
           concepts: [scenarioConcepts.lakehouse]
         }
