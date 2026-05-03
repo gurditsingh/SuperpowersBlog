@@ -133,6 +133,7 @@
     var backdrop = rootDocument.querySelector('[data-drawer-backdrop]');
     var sidebar = rootDocument.querySelector('[data-sidebar]');
     var mainContent = rootDocument.querySelector('#main-content');
+    var skipLink = rootDocument.querySelector('.skip-link');
 
     if (!toggle || !shell || !backdrop || !sidebar) {
       return false;
@@ -159,18 +160,26 @@
     }
 
     function updatePageInteractivity(isOpen) {
-      if (!mainContent) {
-        return;
-      }
-
       if (isMobile() && isOpen) {
-        mainContent.setAttribute('inert', '');
-        mainContent.setAttribute('aria-hidden', 'true');
+        if (mainContent) {
+          mainContent.setAttribute('inert', '');
+          mainContent.setAttribute('aria-hidden', 'true');
+        }
+        if (skipLink) {
+          skipLink.setAttribute('inert', '');
+          skipLink.setAttribute('aria-hidden', 'true');
+        }
         return;
       }
 
-      mainContent.removeAttribute('inert');
-      mainContent.setAttribute('aria-hidden', 'false');
+      if (mainContent) {
+        mainContent.removeAttribute('inert');
+        mainContent.setAttribute('aria-hidden', 'false');
+      }
+      if (skipLink) {
+        skipLink.removeAttribute('inert');
+        skipLink.setAttribute('aria-hidden', 'false');
+      }
     }
 
     function focusFirstDrawerItem() {

@@ -335,6 +335,7 @@ test('bootstrapDrawer supports keyboard close, focus movement, and background in
   const firstLink = createElement();
   const sidebar = createElement();
   const mainContent = createElement();
+  const skipLink = createElement();
   sidebar.querySelector = () => firstLink;
   backdrop.hidden = true;
 
@@ -348,6 +349,7 @@ test('bootstrapDrawer supports keyboard close, focus movement, and background in
         '[data-drawer-backdrop]': backdrop,
         '[data-sidebar]': sidebar,
         '#main-content': mainContent,
+        '.skip-link': skipLink,
       }[selector];
     },
     addEventListener(name, handler) {
@@ -372,6 +374,8 @@ test('bootstrapDrawer supports keyboard close, focus movement, and background in
     assert.equal(firstLink.focusCount, 1);
     assert.equal(mainContent.attributes.inert, '');
     assert.equal(mainContent.getAttribute('aria-hidden'), 'true');
+    assert.equal(skipLink.attributes.inert, '');
+    assert.equal(skipLink.getAttribute('aria-hidden'), 'true');
 
     documentStub.listeners.keydown({ key: 'Escape' });
     assert.equal(shell.getAttribute('data-drawer-open'), 'false');
@@ -379,6 +383,8 @@ test('bootstrapDrawer supports keyboard close, focus movement, and background in
     assert.equal(backdrop.hidden, true);
     assert.equal('inert' in mainContent.attributes, false);
     assert.equal(mainContent.getAttribute('aria-hidden'), 'false');
+    assert.equal('inert' in skipLink.attributes, false);
+    assert.equal(skipLink.getAttribute('aria-hidden'), 'false');
     assert.equal(toggle.focusCount, 1);
   } finally {
     global.window = previousWindow;
