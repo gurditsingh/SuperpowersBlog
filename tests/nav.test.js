@@ -5,7 +5,25 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const siteData = require('../assets/data/site.json');
-const { buildNavigationLinks, currentPathFromLocation, renderNavigation } = require('../assets/app.js');
+const {
+  bootstrapDrawer,
+  buildNavigationLinks,
+  currentPathFromLocation,
+  renderNavigation,
+} = require('../assets/app.js');
+
+const expectedLifecycle = [
+  'Brainstorm / Design',
+  'Specification',
+  'Workspace Isolation',
+  'Implementation Planning',
+  'Execution',
+  'Test-Driven Development',
+  'Systematic Debugging',
+  'Code Review',
+  'Verification',
+  'Branch Completion',
+];
 
 function collectHtmlPages(dir = ROOT) {
   return fs
@@ -18,6 +36,30 @@ function collectHtmlPages(dir = ROOT) {
       return entry.isFile() && entry.name.endsWith('.html') ? [path.relative(ROOT, fullPath)] : [];
     })
     .sort();
+}
+
+function extractCssBlock(source, startPattern) {
+  const match = startPattern.exec(source);
+  assert.ok(match, `expected CSS block matching ${startPattern}`);
+
+  const start = match.index;
+  const open = source.indexOf('{', start);
+  assert.notEqual(open, -1, `expected opening brace for ${startPattern}`);
+
+  let depth = 0;
+  for (let index = open; index < source.length; index += 1) {
+    if (source[index] === '{') {
+      depth += 1;
+    }
+    if (source[index] === '}') {
+      depth -= 1;
+    }
+    if (depth === 0) {
+      return source.slice(start, index + 1);
+    }
+  }
+
+  assert.fail(`unterminated CSS block matching ${startPattern}`);
 }
 
 const requiredPages = [
@@ -90,18 +132,58 @@ test('generated phase navigation uses data-nav-base prefix and marks current pha
   );
 });
 
+test('site navigation uses verified Superpowers lifecycle labels', () => {
+  const lifecycleLabels = siteData.pages
+    .filter((page) => page.path.startsWith('phases/'))
+    .map((page) => page.label);
+
+  assert.deepEqual(lifecycleLabels, expectedLifecycle);
+});
+
+test('visual system CSS exposes lifecycle console contracts', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'assets/styles.css'), 'utf8');
+
+  assert.match(css, /--accent-teal\s*:/);
+  assert.match(css, /--accent-orange\s*:\s*#ad521b/i);
+  assert.match(css, /--focus\s*:\s*#0a5f5a/i);
+  assert.match(css, /\.sidebar\b/);
+  assert.match(css, /\.drawer-toggle\b/);
+  assert.match(css, /@media\s*\(max-width:\s*860px\)/);
+  assert.doesNotMatch(css, /body\s*\{[^}]*overflow-x\s*:\s*hidden/i);
+  assert.match(css, /max-width\s*:\s*100%/);
+  assert.match(css, /min-width\s*:\s*0/);
+  assert.match(css, /grid-template-columns\s*:\s*repeat\(auto-fit,\s*minmax\(min\(100%,/);
+  assert.match(css, /@media\s*\(max-width:\s*860px\)\s*\{[\s\S]*\.sidebar\s*\{[^}]*transform\s*:\s*translateX\(-105%\)/);
+  assert.match(css, /@media\s*\(max-width:\s*860px\)\s*\{[\s\S]*\.app-shell\[data-drawer-open="true"\]\s+\.sidebar\s*\{[^}]*transform\s*:\s*translateX\(0\)/);
+  assert.match(css, /@media\s*\(max-width:\s*860px\)\s*\{[\s\S]*\.app-shell\[data-drawer-open="true"\]\s+\.sidebar\s*\{[^}]*padding-top\s*:\s*4\.8rem/);
+  assert.match(css, /\.simulation-phase-summary\[data-phase-status="completed"\]/);
+});
+
+test('css includes mobile drawer and desktop left navigation breakpoints', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'assets/styles.css'), 'utf8');
+  const sidebarBlock = extractCssBlock(css, /\.sidebar\s*\{/);
+  const mobileCss = extractCssBlock(css, /@media\s*\(max-width:\s*860px\)\s*\{/);
+
+  assert.match(sidebarBlock, /position:\s*fixed/);
+  assert.match(css, /\.drawer-backdrop/);
+  assert.match(
+    mobileCss,
+    /\.phase-grid,\s*\.phase-map,\s*form\[data-simulation-form\],\s*\.simulation-comparison\s+\.phase-grid\s*\{[^}]*grid-template-columns:\s*1fr/,
+  );
+});
+
 test('rendered navigation includes aria-current only on the current page', () => {
   const markup = renderNavigation({
     pages: siteData.pages,
     base: '..',
     currentPath: 'phases/discovery.html',
-    pageLabel: 'Discovery',
+    pageLabel: 'Specification',
   });
 
   assert.match(markup, /<a href="\.\.\/index\.html">Home<\/a>/);
   assert.match(markup, /<a href="\.\.\/simulation\.html">Simulation<\/a>/);
   assert.match(markup, /<a href="\.\.\/artifacts\.html">Artifacts<\/a>/);
-  assert.match(markup, /<a href="\.\.\/phases\/discovery\.html" aria-current="page">Discovery<\/a>/);
+  assert.match(markup, /<a href="\.\.\/phases\/discovery\.html" aria-current="page">Specification<\/a>/);
   assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
 });
 
@@ -120,6 +202,328 @@ test('rendered navigation marks home current for github pages project-root URL',
 
   assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
   assert.match(markup, /<a href="\.\/index\.html" aria-current="page">Home<\/a>/);
+});
+
+test('rendered navigation uses left sidebar and mobile drawer controls', () => {
+  const markup = renderNavigation({
+    pages: siteData.pages,
+    base: '.',
+    currentPath: 'index.html',
+    pageLabel: 'Superpowers Lifecycle',
+  });
+
+  assert.match(markup, /class="app-shell"/);
+  assert.match(markup, /class="sidebar-nav"/);
+  assert.match(markup, /data-drawer-toggle/);
+  assert.match(markup, /aria-controls="site-navigation"/);
+  assert.match(markup, /id="site-navigation"/);
+});
+
+test('rendered navigation groups primary links and lifecycle links', () => {
+  const markup = renderNavigation({
+    pages: siteData.pages,
+    base: '..',
+    currentPath: 'phases/tdd.html',
+    pageLabel: 'Test-Driven Development',
+  });
+
+  assert.match(markup, /Primary/);
+  assert.match(markup, /Lifecycle/);
+  assert.match(markup, /Test-Driven Development/);
+  assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
+});
+
+test('bootstrapDrawer toggles the mobile drawer and closes on backdrop click', () => {
+  function createElement(attributes = {}) {
+    return {
+      attributes,
+      hidden: false,
+      listeners: {},
+      getAttribute(name) {
+        return this.attributes[name] || null;
+      },
+      setAttribute(name, value) {
+        this.attributes[name] = String(value);
+      },
+      removeAttribute(name) {
+        delete this.attributes[name];
+      },
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+    };
+  }
+
+  const toggle = createElement({ 'aria-expanded': 'false' });
+  const shell = createElement();
+  const backdrop = createElement();
+  const sidebar = createElement();
+  backdrop.hidden = true;
+  const documentStub = {
+    querySelector(selector) {
+      return {
+        '[data-drawer-toggle]': toggle,
+        '[data-app-shell]': shell,
+        '[data-drawer-backdrop]': backdrop,
+        '[data-sidebar]': sidebar,
+      }[selector];
+    },
+  };
+  const previousWindow = global.window;
+  global.window = {
+    matchMedia(query) {
+      assert.equal(query, '(max-width: 860px)');
+      return {
+        matches: true,
+        addEventListener() {},
+      };
+    },
+  };
+
+  try {
+    assert.equal(bootstrapDrawer(documentStub), true);
+
+    assert.equal(sidebar.attributes.inert, '');
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'true');
+
+    toggle.listeners.click();
+    assert.equal(shell.getAttribute('data-drawer-open'), 'true');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'true');
+    assert.equal(backdrop.hidden, false);
+    assert.equal('inert' in sidebar.attributes, false);
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'false');
+
+    backdrop.listeners.click();
+    assert.equal(shell.getAttribute('data-drawer-open'), 'false');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(backdrop.hidden, true);
+    assert.equal(sidebar.attributes.inert, '');
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'true');
+  } finally {
+    global.window = previousWindow;
+  }
+});
+
+test('bootstrapDrawer supports keyboard close, focus movement, and background inerting on mobile', () => {
+  function createElement(attributes = {}) {
+    return {
+      attributes,
+      hidden: false,
+      listeners: {},
+      focusCount: 0,
+      getAttribute(name) {
+        return this.attributes[name] || null;
+      },
+      setAttribute(name, value) {
+        this.attributes[name] = String(value);
+      },
+      removeAttribute(name) {
+        delete this.attributes[name];
+      },
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+      focus() {
+        this.focusCount += 1;
+        documentStub.activeElement = this;
+      },
+    };
+  }
+
+  const toggle = createElement({ 'aria-expanded': 'false' });
+  const shell = createElement();
+  const backdrop = createElement();
+  const firstLink = createElement();
+  const sidebar = createElement();
+  const mainContent = createElement();
+  const skipLink = createElement();
+  sidebar.querySelector = () => firstLink;
+  backdrop.hidden = true;
+
+  const documentStub = {
+    activeElement: toggle,
+    listeners: {},
+    querySelector(selector) {
+      return {
+        '[data-drawer-toggle]': toggle,
+        '[data-app-shell]': shell,
+        '[data-drawer-backdrop]': backdrop,
+        '[data-sidebar]': sidebar,
+        '#main-content': mainContent,
+        '.skip-link': skipLink,
+      }[selector];
+    },
+    addEventListener(name, handler) {
+      this.listeners[name] = handler;
+    },
+  };
+  const previousWindow = global.window;
+  global.window = {
+    matchMedia(query) {
+      assert.equal(query, '(max-width: 860px)');
+      return {
+        matches: true,
+        addEventListener() {},
+      };
+    },
+  };
+
+  try {
+    assert.equal(bootstrapDrawer(documentStub), true);
+
+    toggle.listeners.click();
+    assert.equal(firstLink.focusCount, 1);
+    assert.equal(mainContent.attributes.inert, '');
+    assert.equal(mainContent.getAttribute('aria-hidden'), 'true');
+    assert.equal(skipLink.attributes.inert, '');
+    assert.equal(skipLink.getAttribute('aria-hidden'), 'true');
+
+    documentStub.listeners.keydown({ key: 'Escape' });
+    assert.equal(shell.getAttribute('data-drawer-open'), 'false');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(backdrop.hidden, true);
+    assert.equal('inert' in mainContent.attributes, false);
+    assert.equal(mainContent.getAttribute('aria-hidden'), 'false');
+    assert.equal('inert' in skipLink.attributes, false);
+    assert.equal(skipLink.getAttribute('aria-hidden'), 'false');
+    assert.equal(toggle.focusCount, 1);
+  } finally {
+    global.window = previousWindow;
+  }
+});
+
+test('bootstrapDrawer initializes desktop drawer as closed and interactive', () => {
+  function createElement(attributes = {}) {
+    return {
+      attributes,
+      hidden: false,
+      listeners: {},
+      getAttribute(name) {
+        return this.attributes[name] || null;
+      },
+      setAttribute(name, value) {
+        this.attributes[name] = String(value);
+      },
+      removeAttribute(name) {
+        delete this.attributes[name];
+      },
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+    };
+  }
+
+  const toggle = createElement({ 'aria-expanded': 'true' });
+  const shell = createElement({ 'data-drawer-open': 'true' });
+  const backdrop = createElement();
+  const sidebar = createElement({ inert: '', 'aria-hidden': 'true' });
+  backdrop.hidden = false;
+  const documentStub = {
+    querySelector(selector) {
+      return {
+        '[data-drawer-toggle]': toggle,
+        '[data-app-shell]': shell,
+        '[data-drawer-backdrop]': backdrop,
+        '[data-sidebar]': sidebar,
+      }[selector];
+    },
+  };
+  const previousWindow = global.window;
+  global.window = {
+    matchMedia(query) {
+      assert.equal(query, '(max-width: 860px)');
+      return {
+        matches: false,
+        addEventListener() {},
+      };
+    },
+  };
+
+  try {
+    assert.equal(bootstrapDrawer(documentStub), true);
+
+    assert.equal(shell.getAttribute('data-drawer-open'), 'false');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(backdrop.hidden, true);
+    assert.equal('inert' in sidebar.attributes, false);
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'false');
+  } finally {
+    global.window = previousWindow;
+  }
+});
+
+test('bootstrapDrawer closes an open mobile drawer when viewport changes to desktop', () => {
+  function createElement(attributes = {}) {
+    return {
+      attributes,
+      hidden: false,
+      listeners: {},
+      getAttribute(name) {
+        return this.attributes[name] || null;
+      },
+      setAttribute(name, value) {
+        this.attributes[name] = String(value);
+      },
+      removeAttribute(name) {
+        delete this.attributes[name];
+      },
+      addEventListener(name, handler) {
+        this.listeners[name] = handler;
+      },
+    };
+  }
+
+  let mediaChangeHandler;
+  const mediaQuery = {
+    matches: true,
+    addEventListener(name, handler) {
+      if (name === 'change') {
+        mediaChangeHandler = handler;
+      }
+    },
+  };
+  const toggle = createElement({ 'aria-expanded': 'false' });
+  const shell = createElement();
+  const backdrop = createElement();
+  const sidebar = createElement();
+  backdrop.hidden = true;
+  const documentStub = {
+    querySelector(selector) {
+      return {
+        '[data-drawer-toggle]': toggle,
+        '[data-app-shell]': shell,
+        '[data-drawer-backdrop]': backdrop,
+        '[data-sidebar]': sidebar,
+      }[selector];
+    },
+  };
+  const previousWindow = global.window;
+  global.window = {
+    matchMedia(query) {
+      assert.equal(query, '(max-width: 860px)');
+      return mediaQuery;
+    },
+  };
+
+  try {
+    assert.equal(bootstrapDrawer(documentStub), true);
+
+    toggle.listeners.click();
+    assert.equal(shell.getAttribute('data-drawer-open'), 'true');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'true');
+    assert.equal(backdrop.hidden, false);
+
+    mediaQuery.matches = false;
+    mediaChangeHandler();
+
+    assert.equal(shell.getAttribute('data-drawer-open'), 'false');
+    assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(backdrop.hidden, true);
+    assert.equal('inert' in sidebar.attributes, false);
+    assert.equal(sidebar.getAttribute('aria-hidden'), 'false');
+  } finally {
+    global.window = previousWindow;
+  }
 });
 
 for (const page of requiredPages) {

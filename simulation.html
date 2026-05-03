@@ -52,7 +52,13 @@
         <button type="submit">Run deterministic simulation</button>
       </form>
     </section>
-    <section data-simulation-result></section>
+    <section
+      data-simulation-result
+      role="region"
+      aria-live="polite"
+      aria-atomic="false"
+      aria-label="Simulation output"
+    ></section>
   </main>
   <script src="assets/app.js"></script>
 </body>

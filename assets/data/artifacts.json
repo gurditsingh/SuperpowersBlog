@@ -1,11 +1,11 @@
 {
   "scenarioId": "retail-receipts-databricks",
-  "title": "Sample spec package: Retail receipts to analytics on Databricks",
-  "summary": "A complete example package showing how Superpowers-style discovery, specification, planning, TDD, debugging, review, and verification artifacts align around one Databricks Data Lakehouse delivery slice.",
+  "title": "Superpowers Sample Spec Package",
+  "summary": "Evidence produced by the Superpowers lifecycle for a Databricks ingestion pipeline sample project, showing how each stage turns a vague coding-agent request into governed spec-driven delivery.",
   "sections": [
     {
-      "title": "Discovery brief",
-      "summary": "Stakeholders need governed receipt analytics and operational receipt lookup without duplicating business logic across teams.",
+      "title": "Brainstorm / Design brief",
+      "summary": "Brainstorm / Design lifecycle evidence captures users, goals, non-goals, and risks before the sample Databricks work begins.",
       "items": [
         "Primary users are finance analysts, merchandising leads, store operations, and customer support supervisors.",
         "The Data Lakehouse scope covers bronze receipt ingestion, silver normalization, gold KPI marts, Databricks SQL dashboards, and Lakebase lookup extracts.",
@@ -16,7 +16,7 @@
     },
     {
       "title": "Formal specification excerpt",
-      "summary": "The first release defines observable contracts for ingestion, governance, analytics, and serving boundaries.",
+      "summary": "Specification lifecycle evidence defines observable contracts for ingestion, governance, analytics, and serving boundaries.",
       "items": [
         "Bronze Delta Lake tables accept receipt payloads with source, receipt id, event timestamp, raw text, and ingestion metadata.",
         "Silver tables reject records missing receipt id, store id, transaction timestamp, or total amount, and write rejected rows to a quarantine table with reason codes.",
@@ -27,7 +27,7 @@
     },
     {
       "title": "Implementation plan excerpt",
-      "summary": "Work is split into testable increments that avoid building dashboards or serving paths before data contracts exist.",
+      "summary": "Implementation Planning lifecycle evidence splits the spec into ordered, testable increments before execution starts.",
       "items": [
         "Task 1: create Delta Lake bronze and silver schemas plus fixture receipts for valid, malformed, late, and returned transactions.",
         "Task 2: implement receipt normalization and quarantine rules with unit tests for schema drift and missing required fields.",
@@ -38,7 +38,7 @@
     },
     {
       "title": "TDD matrix",
-      "summary": "Tests are mapped to the behavior promised by the specification, not to incidental implementation details.",
+      "summary": "Test-Driven Development lifecycle evidence maps tests to promised behavior instead of incidental implementation details.",
       "items": [
         "Given a valid point-of-sale receipt, bronze ingestion writes the raw payload and silver normalization emits one receipt header plus line items in Delta Lake.",
         "Given a receipt missing total amount, silver normalization writes no business row and records a quarantine reason.",
@@ -49,7 +49,7 @@
     },
     {
       "title": "Debug log narrative",
-      "summary": "A representative failure shows how systematic debugging protects the lakehouse contract.",
+      "summary": "Systematic Debugging lifecycle evidence records observations, hypotheses, experiments, and the proven root cause.",
       "items": [
         "Symptom: Databricks SQL tax variance spiked after a store firmware rollout even though point-of-sale control totals were stable.",
         "First observation: the Delta Lake quarantine table grew for receipts where tax was renamed from tax_total to taxes.total.",
@@ -60,7 +60,7 @@
     },
     {
       "title": "Review findings and dispositions",
-      "summary": "Review comments are tracked as concrete decisions instead of vague agreement.",
+      "summary": "Code Review lifecycle evidence turns findings into concrete dispositions rather than vague agreement.",
       "items": [
         "Finding: Unity Catalog grants allowed a merchandising group to read loyalty identifiers in silver tables. Disposition: removed direct silver access and routed the group to masked gold views.",
         "Finding: Lakebase lookup did not expose synchronization age. Disposition: added last_successful_sync_at and stale_after_minutes to the serving contract.",
@@ -70,7 +70,7 @@
     },
     {
       "title": "Verification checklist and sign-off criteria",
-      "summary": "Completion requires evidence from tests, data quality checks, governance review, and stakeholder acceptance.",
+      "summary": "Verification and Branch Completion lifecycle evidence requires fresh proof before completion claims or handoff.",
       "items": [
         "All receipt normalization tests pass against valid, malformed, late, returned, and schema-drift fixtures.",
         "Delta Lake table history confirms controlled updates and replay for corrected receipts.",

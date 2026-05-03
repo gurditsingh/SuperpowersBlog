@@ -5,7 +5,21 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const PHASES_PATH = path.join(ROOT, 'assets/data/phases.json');
+const siteData = require('../assets/data/site.json');
 const { bootstrapPhaseRoot, renderArtifactsPage, renderPhasePage } = require('../assets/app.js');
+
+const expectedLifecycle = [
+  'Brainstorm / Design',
+  'Specification',
+  'Workspace Isolation',
+  'Implementation Planning',
+  'Execution',
+  'Test-Driven Development',
+  'Systematic Debugging',
+  'Code Review',
+  'Verification',
+  'Branch Completion',
+];
 
 const expectedSlugs = [
   'fundamentals',
@@ -56,12 +70,26 @@ test('renderPhasePage emits required sections and escapes phase content', () => 
     title: 'Phase <script>alert("x")</script>',
     kicker: 'Kicker <strong>unsafe</strong>',
     goal: 'Goal uses <img src=x onerror=alert("x")>',
+    skillMapping: ['Superpowers <skill>'],
+    artifactEvidence: ['Artifact & evidence'],
+    failurePrevented: ['Failure "prevented"'],
+    example: {
+      task: 'Need to build an ingestion pipeline',
+      superpowersMove: 'Write a spec before coding',
+    },
     inputs: ['Input <one>'],
     outputs: ['Output & value'],
     antipatterns: ['Antipattern "quoted"'],
     doneCriteria: ['Done <criteria>'],
   });
 
+  assert.match(markup, />Superpowers skill<\/h2>/);
+  assert.match(markup, />Artifact \/ evidence<\/h2>/);
+  assert.match(markup, />Failure prevented<\/h2>/);
+  assert.match(markup, /Need to build an ingestion pipeline/);
+  assert.match(markup, /Superpowers &lt;skill&gt;/);
+  assert.match(markup, /Artifact &amp; evidence/);
+  assert.match(markup, /Failure &quot;prevented&quot;/);
   assert.match(markup, />Inputs<\/h2>/);
   assert.match(markup, />Outputs<\/h2>/);
   assert.match(markup, />Antipatterns<\/h2>/);
@@ -94,7 +122,7 @@ test('bootstrapPhaseRoot renders visible fallback when phase slug is unknown', a
   const { doc, root } = createPhaseDocument('missing-phase');
   global.fetch = async () => ({
     ok: true,
-    json: async () => [{ slug: 'discovery', title: 'Discovery' }],
+    json: async () => [{ slug: 'discovery', title: 'Specification' }],
   });
 
   try {
@@ -195,7 +223,7 @@ const requiredDatabricksComponents = [
   'Lakebase',
 ];
 const requiredArtifactSections = [
-  'Discovery brief',
+  'Brainstorm / Design brief',
   'Formal specification excerpt',
   'Implementation plan excerpt',
   'TDD matrix',
@@ -217,6 +245,38 @@ function collectText(value) {
   return '';
 }
 
+test('phase data uses Superpowers-first lifecycle structure', () => {
+  const phases = readJson(PHASES_PATH);
+
+  assert.deepEqual(phases.map((phase) => phase.title), expectedLifecycle);
+  for (const phase of phases) {
+    for (const field of [
+      'slug',
+      'title',
+      'kicker',
+      'goal',
+      'skillMapping',
+      'artifactEvidence',
+      'failurePrevented',
+      'example',
+      'inputs',
+      'outputs',
+      'antipatterns',
+      'doneCriteria',
+    ]) {
+      assert.ok(Object.hasOwn(phase, field), `${phase.slug} should include ${field}`);
+    }
+    assert.ok(phase.skillMapping?.length, `${phase.slug} should map to Superpowers skill(s)`);
+    assert.ok(phase.artifactEvidence?.length, `${phase.slug} should describe artifact or evidence`);
+    assert.ok(phase.failurePrevented?.length, `${phase.slug} should describe prevented failure`);
+    const phaseText = JSON.stringify(phase);
+    assert.match(phaseText, /Superpowers/i);
+    assert.match(phaseText, /spec-driven/i);
+    assert.match(phaseText, /coding-agent|coding agents/i);
+    assert.match(JSON.stringify(phase.example || {}), /ingestion pipeline/i);
+  }
+});
+
 test('Databricks scenario and artifacts data include all required components', () => {
   assert.equal(fs.existsSync(SCENARIO_PATH), true, 'assets/data/scenario.json should exist');
   assert.equal(fs.existsSync(ARTIFACTS_PATH), true, 'assets/data/artifacts.json should exist');
@@ -237,12 +297,48 @@ test('Databricks scenario and artifacts data include all required components', (
   );
 });
 
-test('renderArtifactsPage emits the Databricks scenario and spec package sections safely', () => {
+test('scenario summary frames Databricks as a Superpowers sample project', () => {
+  const scenario = readJson(SCENARIO_PATH);
+
+  assert.match(scenario.summary, /Databricks ingestion pipeline/i);
+  assert.match(scenario.summary, /sample project/i);
+  assert.match(scenario.summary, /Superpowers/i);
+  assert.doesNotMatch(scenario.summary, /end-to-end Databricks platform/i);
+});
+
+test('scenario simulation defaults use the verified Superpowers lifecycle', () => {
+  const scenario = readJson(SCENARIO_PATH);
+  const lifecyclePages = siteData.pages.filter((page) => page.path.startsWith('phases/'));
+
+  assert.deepEqual(
+    scenario.simulationDefaults.phases.map((phase) => phase.id),
+    lifecyclePages.map((page) => page.id),
+  );
+  assert.deepEqual(
+    scenario.simulationDefaults.phases.map((phase) => phase.label),
+    lifecyclePages.map((page) => page.label),
+  );
+  assert.doesNotMatch(
+    scenario.simulationDefaults.phases.map((phase) => `${phase.label} ${phase.focus}`).join(' '),
+    /Discovery|Environment and Workspace Setup|\bFundamentals\b/i,
+  );
+});
+
+test('artifact package is framed as Superpowers lifecycle evidence', () => {
+  const artifacts = readJson(ARTIFACTS_PATH);
+  const sectionText = collectText(artifacts.sections);
+
+  assert.match(artifacts.title, /Superpowers Sample Spec Package/i);
+  assert.match(artifacts.summary, /evidence produced by the Superpowers lifecycle/i);
+  assert.match(sectionText, /lifecycle|Brainstorm|Specification|Planning|TDD|Debugging|Review|Verification/i);
+});
+
+test('renderArtifactsPage emits the Superpowers sample package and spec sections safely', () => {
   assert.equal(typeof renderArtifactsPage, 'function', 'assets/app.js should export renderArtifactsPage');
 
   const markup = renderArtifactsPage(
     {
-      title: 'Retail receipts to analytics on Databricks',
+      title: 'Sample Project: Ingestion Pipeline',
       summary: 'A Data Lakehouse path using Delta Lake and Unity Catalog.',
       components: [{ name: 'Lakebase', role: 'Serves operational receipt lookups.' }],
       flow: ['Databricks SQL dashboards publish governed KPIs.'],
@@ -250,7 +346,7 @@ test('renderArtifactsPage emits the Databricks scenario and spec package section
     {
       sections: [
         {
-          title: 'Discovery brief',
+          title: 'Brainstorm / Design brief',
           summary: 'Stakeholders align on scope.',
           items: ['Formal specification excerpt <unsafe>'],
         },
@@ -258,40 +354,49 @@ test('renderArtifactsPage emits the Databricks scenario and spec package section
     },
   );
 
-  assert.match(markup, /Retail receipts to analytics on Databricks/);
+  assert.match(markup, /Superpowers sample package/i);
+  assert.match(markup, /Sample Project: Ingestion Pipeline/);
   assert.match(markup, /Data Lakehouse/);
   assert.match(markup, /Databricks SQL/);
   assert.match(markup, /Delta Lake/);
   assert.match(markup, /Unity Catalog/);
   assert.match(markup, /Lakebase/);
-  assert.match(markup, /Discovery brief/);
+  assert.match(markup, /Brainstorm \/ Design brief/);
   assert.match(markup, /Formal specification excerpt &lt;unsafe&gt;/);
   assert.doesNotMatch(markup, /<unsafe>/);
 });
 
-const homepagePhaseLabels = [
-  'Fundamentals',
-  'Phase 1 - Discovery',
-  'Phase 2 - Specification',
-  'Phase 3 - Implementation Planning',
-  'Phase 4 - Environment and Workspace Setup',
-  'Phase 5 - Test-Driven Development',
-  'Phase 6 - Systematic Debugging',
-  'Phase 7 - Code Review',
-  'Phase 8 - Verification',
-  'Phase 9 - Completion',
-];
-
-test('homepage includes full phase map and sample spec package CTA', () => {
+test('homepage presents the Superpowers lifecycle landing page', () => {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const homepagePhaseLabels = siteData.pages
+    .filter((page) => page.path.startsWith('phases/'))
+    .map((page) => page.label);
 
   assert.match(html, /Superpowers spec-driven development/i);
+  assert.match(html, /Superpowers spec-driven development for coding agents/i);
   assert.match(html, /why spec-driven development matters/i);
+  assert.match(html, /feedback loop/i);
+  assert.match(html, /Systematic Debugging[\s\S]*Code Review[\s\S]*Verification/i);
+  assert.match(html, /Specification or Implementation Planning/i);
 
   for (const label of homepagePhaseLabels) {
     assert.match(html, new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `homepage should include ${label}`);
   }
 
+  assert.match(html, /id=["']main-content["']/);
+  assert.match(html, /data-nav-root/);
   assert.match(html, /href=["']\.\/artifacts\.html["']/);
   assert.match(html, /View Full Sample Spec Package/);
+  assert.match(html, /href=["']\.\/simulation\.html["']/);
+  assert.doesNotMatch(html, /Databricks end-to-end data platform delivery/);
+});
+
+test('simulation page exposes an accessible live output region', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'simulation.html'), 'utf8');
+
+  assert.match(html, /data-simulation-result/);
+  assert.match(html, /role=["']region["']/);
+  assert.match(html, /aria-live=["']polite["']/);
+  assert.match(html, /aria-atomic=["']false["']/);
+  assert.match(html, /aria-label=["']Simulation output["']/);
 });

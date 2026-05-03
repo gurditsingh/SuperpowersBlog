@@ -1,44 +1,46 @@
 {
   "id": "retail-receipts-databricks",
-  "title": "Retail receipts to analytics on Databricks",
-  "summary": "A regional retailer turns store, ecommerce, and mobile receipt events into governed analytics and operational receipt lookup services on a Databricks Data Lakehouse.",
-  "businessGoal": "Reduce weekly margin reconciliation from two days to one hour while giving finance, merchandising, and support teams a trusted view of receipt-level sales, taxes, discounts, and returns.",
+  "title": "Sample Project: Ingestion Pipeline",
+  "summary": "A Databricks ingestion pipeline is used as a sample project to show how Superpowers turns vague coding-agent requests into governed spec-driven delivery.",
+  "businessGoal": "Demonstrate the Superpowers artifact trail and quality gates that move an ingestion pipeline from clarified intent to approved spec, planned work, test-first implementation, review evidence, and verified completion.",
   "components": [
     {
       "name": "Data Lakehouse",
-      "role": "Organizes raw, refined, and business-ready receipt data in one governed architecture for analytics and downstream serving."
+      "role": "Illustrates the target architecture that Superpowers brainstorming and specification must make explicit before a coding agent starts implementation."
     },
     {
       "name": "Delta Lake",
-      "role": "Stores bronze receipt events, silver normalized line items, and gold aggregate tables with ACID transactions, schema evolution controls, and time travel for audit recovery."
+      "role": "Illustrates spec-driven data contracts, quality gates, schema evolution decisions, and regression evidence for bronze, silver, and gold pipeline behavior."
     },
     {
       "name": "Unity Catalog",
-      "role": "Applies catalog, schema, table, lineage, masking, and access policies so receipt PII and tender data are discoverable but controlled."
+      "role": "Illustrates governance requirements that Superpowers artifacts capture as access policies, lineage expectations, review findings, and verification checks."
     },
     {
       "name": "Databricks SQL",
-      "role": "Publishes governed dashboards for sales, basket mix, promotion leakage, tax reconciliation, and store exception review."
+      "role": "Illustrates stakeholder-facing acceptance criteria where Superpowers verification proves dashboards reconcile to governed pipeline outputs."
     },
     {
       "name": "Lakebase",
-      "role": "Serves low-latency operational receipt lookups for customer support and return authorization while sourcing trusted records from the lakehouse."
+      "role": "Illustrates serving-boundary decisions where Superpowers planning requires explicit freshness, synchronization, stale-state, and failure-mode behavior."
     }
   ],
   "dataFlow": [
-    "Receipt JSON and PDF-derived text land in bronze Delta Lake tables partitioned by ingestion date and source system.",
-    "Silver pipelines standardize store identifiers, timestamps, tax fields, SKU references, discounts, and tender metadata while quarantining malformed receipts.",
-    "Unity Catalog classifies customer identifiers and payment-adjacent fields, then enforces analyst, finance, and support access boundaries.",
-    "Gold marts summarize daily sales, return rates, tax variance, and promotion performance for Databricks SQL dashboards.",
-    "A curated receipt service table is synchronized into Lakebase for customer support search by receipt id, loyalty id, and return authorization id."
+    "Receipt JSON and PDF-derived text land in bronze Delta Lake tables so the sample ingestion pipeline has a concrete source contract for Superpowers specification work.",
+    "Silver pipelines standardize store identifiers, timestamps, tax fields, SKU references, discounts, and tender metadata while Superpowers quality gates require malformed receipts to be quarantined.",
+    "Unity Catalog classifies customer identifiers and payment-adjacent fields, then the Superpowers review stage validates access boundaries before analyst rollout.",
+    "Gold marts summarize daily sales, return rates, tax variance, and promotion performance as the Databricks SQL example used for acceptance checks.",
+    "A curated receipt service table is synchronized into Lakebase so the sample package can verify operational lookup freshness and stale-state behavior."
   ],
   "successMetrics": [
+    "Superpowers artifacts trace each implementation task back to an approved spec decision and a verification check.",
     "Receipt freshness is under 30 minutes for analytics and under five minutes for Lakebase support lookup extracts.",
     "At least 99.5 percent of valid receipt events reach silver tables without manual intervention.",
     "Databricks SQL finance dashboards reconcile gross sales, taxes, returns, and discounts to point-of-sale control totals within 0.2 percent.",
     "Unity Catalog lineage shows source-to-dashboard traceability for each gold KPI table."
   ],
   "risks": [
+    "Vague coding-agent prompts can skip the spec and produce a Databricks build that works locally but lacks governed acceptance evidence.",
     "Schema drift from point-of-sale firmware updates can break receipt parsing unless Delta Lake expectations and quarantine paths are enforced.",
     "PII leakage is possible if Unity Catalog tags and grants are not reviewed before analyst access is opened.",
     "Lakebase serving tables can diverge from lakehouse truth unless synchronization freshness and failure behavior are specified."
@@ -52,16 +54,54 @@
     },
     "phases": [
       {
-        "id": "discovery",
-        "focus": "Confirm finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse."
+        "id": "fundamentals",
+        "label": "Brainstorm / Design",
+        "focus": "Clarify users, goals, assumptions, risks, and success criteria for the ingestion pipeline sample before Databricks design choices."
       },
       {
-        "id": "plan",
-        "focus": "Plan Delta Lake quality gates, Unity Catalog policy reviews, Databricks SQL dashboards, and Lakebase serving synchronization."
+        "id": "discovery",
+        "label": "Specification",
+        "focus": "Define receipt schemas, quality thresholds, lineage, access rules, SLA targets, and dashboard acceptance checks."
+      },
+      {
+        "id": "specification",
+        "label": "Workspace Isolation",
+        "focus": "Create an isolated Git workspace so the sample remains scoped, reviewable, and safe to abandon."
+      },
+      {
+        "id": "implementation-planning",
+        "label": "Implementation Planning",
+        "focus": "Break the approved specification into ordered, testable work for Delta Lake, Unity Catalog, Databricks SQL, and Lakebase."
+      },
+      {
+        "id": "workspace-setup",
+        "label": "Execution",
+        "focus": "Implement the planned sample increments while preserving links between code, spec decisions, tests, and review evidence."
+      },
+      {
+        "id": "tdd",
+        "label": "Test-Driven Development",
+        "focus": "Write failing tests for quality gates, governance boundaries, dashboard reconciliation, and Lakebase freshness before implementation."
+      },
+      {
+        "id": "systematic-debugging",
+        "label": "Systematic Debugging",
+        "focus": "Diagnose failures through observed evidence, focused hypotheses, and root-cause experiments instead of Databricks guesswork."
+      },
+      {
+        "id": "code-review",
+        "label": "Code Review",
+        "focus": "Review changes against the specification, tests, maintainability expectations, and residual sample-project risks."
       },
       {
         "id": "verification",
-        "focus": "Verify freshness, quarantine rate, reconciliation accuracy, lineage, and serving sync behavior before sign-off."
+        "label": "Verification",
+        "focus": "Verify freshness, quarantine rate, reconciliation accuracy, lineage, and serving sync behavior before completion claims."
+      },
+      {
+        "id": "completion",
+        "label": "Branch Completion",
+        "focus": "Package the branch with verification evidence, review disposition, changed files, and merge or pull-request readiness."
       }
     ]
   }

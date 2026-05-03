@@ -1,262 +1,172 @@
 [
   {
     "slug": "fundamentals",
-    "title": "Phase 0 - Fundamentals",
-    "kicker": "Why spec-driven work exists",
-    "goal": "Establish the rule that disciplined discovery, specification, testing, and verification happen before confident implementation claims.",
-    "inputs": [
-      "A shared Databricks program objective, such as governed lakehouse reporting and operational serving",
-      "Known delivery pressure, team constraints, and quality expectations",
-      "Agreement that tests and evidence matter more than optimistic status updates"
-    ],
-    "outputs": [
-      "A common vocabulary for phases, artifacts, and evidence",
-      "A decision to treat the spec as the contract for implementation",
-      "A baseline expectation that every claim can be verified"
-    ],
-    "antipatterns": [
-      "Starting notebook, job, or dashboard work before defining the expected behavior",
-      "Treating Superpowers as ceremony instead of a way to reduce rework",
-      "Reporting progress without evidence from tests, reviews, or verification"
-    ],
-    "doneCriteria": [
-      "The team can explain the full Fundamentals plus Phases 1-9 flow",
-      "Stakeholders agree that scope changes update the spec before code changes",
-      "The Databricks example has a clear business outcome and measurable quality bar"
-    ]
+    "title": "Brainstorm / Design",
+    "kicker": "Start with intent, not code",
+    "goal": "Use Superpowers brainstorming to clarify the real goal, constraints, alternatives, risks, and success criteria before coding agents change the system.",
+    "skillMapping": ["superpowers:brainstorming"],
+    "artifactEvidence": ["Approved design direction", "Captured assumptions and constraints", "Success criteria ready for a spec-driven handoff"],
+    "failurePrevented": ["Coding agents start from a vague prompt and build the wrong thing."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "Ask what data arrives, who consumes it, what freshness matters, and what failure behavior is acceptable before proposing implementation."
+    },
+    "inputs": ["Initial feature idea", "User goals", "Known constraints"],
+    "outputs": ["Approved design direction", "Spec-ready decisions", "Resolved open questions"],
+    "antipatterns": ["Coding before clarifying the outcome", "Treating the first implementation idea as the design"],
+    "doneCriteria": ["The user has approved the design direction, scope, and success criteria."]
   },
   {
     "slug": "discovery",
-    "title": "Phase 1 - Discovery",
-    "kicker": "Find the real problem before solving it",
-    "goal": "Capture stakeholders, business metrics, assumptions, constraints, risks, and success criteria for the Databricks program.",
-    "inputs": [
-      "Stakeholder goals for bronze ingestion, silver standardization, gold marts, SQL analytics, and Lakebase serving",
-      "Existing data sources, freshness needs, governance constraints, and operational deadlines",
-      "Known risks such as schema drift, PII handling, lineage gaps, and cost ceilings"
-    ],
-    "outputs": [
-      "Discovery brief with business outcomes and non-goals",
-      "Risk and assumption log for data quality, governance, latency, and ownership",
-      "Measurable success criteria for the lakehouse workflow"
-    ],
-    "antipatterns": [
-      "Assuming every source should be ingested before ranking business value",
-      "Skipping governance discovery until after data lands in bronze",
-      "Leaving freshness, quality, or cost targets as vague aspirations"
-    ],
-    "doneCriteria": [
-      "Business metrics and stakeholder approvals are documented",
-      "Constraints and risks have owners or explicit follow-up decisions",
-      "The team knows which Databricks outcomes are in scope for the first release"
-    ]
+    "title": "Specification",
+    "kicker": "Turn decisions into a contract",
+    "goal": "Convert the approved Superpowers design into a spec-driven contract with observable behavior, acceptance criteria, non-goals, and risks.",
+    "skillMapping": ["superpowers:writing-plans", "superpowers:brainstorming"],
+    "artifactEvidence": ["Formal specification", "Acceptance criteria", "Explicit non-goals and unresolved decisions"],
+    "failurePrevented": ["Coding agents implement from memory and miss requirements that were only implied."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "Specify source formats, schema drift behavior, retry policy, data quality checks, and the evidence required before the pipeline can be called complete."
+    },
+    "inputs": ["Approved design", "Constraints", "Stakeholder decisions"],
+    "outputs": ["Reviewed specification", "Acceptance tests to write", "Traceable requirement list"],
+    "antipatterns": ["Writing tasks before behavior is specified", "Leaving edge cases for coding agents to invent"],
+    "doneCriteria": ["Every requirement has observable behavior or verification evidence."]
   },
   {
     "slug": "specification",
-    "title": "Phase 2 - Specification",
-    "kicker": "Turn intent into a contract",
-    "goal": "Define architecture boundaries, data contracts, SLAs, governance rules, and expected behaviors before implementation starts.",
-    "inputs": [
-      "Approved discovery brief and risk register",
-      "Source-to-bronze requirements, silver validation rules, gold mart definitions, and serving expectations",
-      "Security, catalog, lineage, retention, and PII requirements"
-    ],
-    "outputs": [
-      "Formal specification covering architecture boundaries and acceptance criteria",
-      "Data contracts for schemas, freshness, quality checks, and failure behavior",
-      "Governance and SLA rules that can be tested or reviewed"
-    ],
-    "antipatterns": [
-      "Writing implementation tasks from memory instead of from a reviewed spec",
-      "Specifying happy paths while leaving schema drift or late data undefined",
-      "Using Databricks features without defining why each one is needed"
-    ],
-    "doneCriteria": [
-      "Each requirement has observable behavior or evidence criteria",
-      "Non-goals and deferred decisions are explicit",
-      "Stakeholders can review the spec without reading implementation code"
-    ]
+    "title": "Workspace Isolation",
+    "kicker": "Protect unrelated work",
+    "goal": "Use Superpowers workspace isolation to create a spec-driven safe branch or worktree, inspect repository state, and prevent coding agents from trampling unrelated edits.",
+    "skillMapping": ["superpowers:using-git-worktrees"],
+    "artifactEvidence": ["Starting git status", "Isolated branch or worktree path", "Known unrelated changes left untouched"],
+    "failurePrevented": ["Coding agents mix another person's edits into the task or use destructive git cleanup."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "Create an isolated workspace for the pipeline task, record existing repository changes, and keep unrelated dashboard or artifact edits out of the diff."
+    },
+    "inputs": ["Target branch", "Current git status", "Spec or task scope"],
+    "outputs": ["Safe implementation workspace", "Clean scope boundary", "Documented starting state"],
+    "antipatterns": ["Working from a dirty shared branch without checking status", "Resetting files that belong to someone else"],
+    "doneCriteria": ["Coding agents can name the exact workspace and unrelated changes that must remain untouched."]
   },
   {
     "slug": "implementation-planning",
-    "title": "Phase 3 - Implementation Planning",
-    "kicker": "Convert the spec into executable work",
-    "goal": "Break the specification into ordered tasks across ingestion, modeling, governance, SQL serving, and operational serving.",
-    "inputs": [
-      "Reviewed specification with acceptance criteria",
-      "Repository structure, team ownership, and release constraints",
-      "Dependency map for jobs, tables, tests, dashboards, and serving endpoints"
-    ],
-    "outputs": [
-      "Implementation plan with small testable tasks",
-      "Task ordering that separates independent tracks from blocking dependencies",
-      "Verification checkpoints tied back to specification requirements"
-    ],
-    "antipatterns": [
-      "Creating giant tasks such as build the lakehouse end to end",
-      "Planning UI, jobs, and governance changes without clear verification points",
-      "Ignoring dependency order between bronze ingestion, silver rules, and gold marts"
-    ],
-    "doneCriteria": [
-      "Every task has clear files, behavior, and test expectations",
-      "Parallelizable work is separated from sequential dependencies",
-      "The plan excludes later-scope artifact viewer, simulation, or comparison work unless explicitly assigned"
-    ]
+    "title": "Implementation Planning",
+    "kicker": "Make the spec executable",
+    "goal": "Break the spec-driven contract into ordered, testable implementation steps with files, verification commands, and review checkpoints.",
+    "skillMapping": ["superpowers:writing-plans"],
+    "artifactEvidence": ["Implementation plan", "Task ordering", "Per-task verification commands"],
+    "failurePrevented": ["Coding agents jump into a broad feature and lose track of dependencies or acceptance criteria."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "Plan separate tasks for schema parsing, validation, storage writes, error handling, and end-to-end verification instead of one giant pipeline change."
+    },
+    "inputs": ["Reviewed specification", "Repository conventions", "Dependency map"],
+    "outputs": ["Small implementation tasks", "Red/green test sequence", "Verification checklist"],
+    "antipatterns": ["Planning one oversized build-it-all task", "Skipping file-level scope and test commands"],
+    "doneCriteria": ["Each task is independently understandable, testable, and tied back to the specification."]
   },
   {
     "slug": "workspace-setup",
-    "title": "Phase 4 - Environment and Workspace Setup",
-    "kicker": "Protect the repo before changing it",
-    "goal": "Demonstrate isolated Git workspaces and repository hygiene so implementation can proceed without trampling unrelated work.",
-    "inputs": [
-      "Target branch, current git status, and known untracked or unrelated files",
-      "Local runtime requirements for static pages and Node tests",
-      "Decision about whether work should happen in the current branch or an isolated worktree"
-    ],
-    "outputs": [
-      "Clean understanding of the starting repository state",
-      "Workspace ready for scoped Task 3 edits only",
-      "Relative path strategy preserved for GitHub Pages deployment"
-    ],
-    "antipatterns": [
-      "Running destructive git commands to clean up work you did not create",
-      "Mixing phase content work with artifact viewer or simulation implementation",
-      "Assuming local absolute paths will work after GitHub Pages deployment"
-    ],
-    "doneCriteria": [
-      "Unrelated edits are identified and left untouched",
-      "All files to be changed are within the stated Task 3 scope",
-      "The page shell can load shared assets through relative URLs"
-    ]
+    "title": "Execution",
+    "kicker": "Implement the plan in order",
+    "goal": "Use Superpowers execution discipline so coding agents follow the spec-driven plan, update progress, handle blockers explicitly, and avoid unauthorized scope expansion.",
+    "skillMapping": ["superpowers:executing-plans", "superpowers:subagent-driven-development"],
+    "artifactEvidence": ["Task checklist", "Progress updates", "Scoped diff matching the plan"],
+    "failurePrevented": ["Coding agents implement later redesign work or unrelated rendering changes while completing a data-only task."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "Execute the planned parser, validation, and storage tasks in order, stopping for clarification if an acceptance criterion is missing."
+    },
+    "inputs": ["Implementation plan", "Isolated workspace", "Known verification commands"],
+    "outputs": ["Plan steps completed in sequence", "Focused implementation diff", "Documented blockers or decisions"],
+    "antipatterns": ["Changing simulation or visual design while executing a data task", "Treating blockers as permission to guess"],
+    "doneCriteria": ["The completed diff maps directly to the assigned implementation-plan task and nothing more."]
   },
   {
     "slug": "tdd",
-    "title": "Phase 5 - Test-Driven Development",
-    "kicker": "Red, green, then refactor",
-    "goal": "Write failing-first tests for quality, transformations, contracts, and serving expectations before implementation.",
-    "inputs": [
-      "Implementation task with desired behavior and acceptance criteria",
-      "Existing test commands and project conventions",
-      "A minimal failing assertion that proves the missing behavior"
-    ],
-    "outputs": [
-      "A RED test that fails for the expected reason",
-      "Minimal implementation that turns the test GREEN",
-      "Regression coverage for the phase data and renderer contract"
-    ],
-    "antipatterns": [
-      "Writing Databricks transformation code first and adding tests after",
-      "Accepting a test error as a valid RED failure",
-      "Broadening scope while trying to make one focused test pass"
-    ],
-    "doneCriteria": [
-      "The failing test was observed before implementation",
-      "The test passes after the smallest useful implementation",
-      "The test validates behavior rather than incidental implementation details"
-    ]
+    "title": "Test-Driven Development",
+    "kicker": "Red, green, refactor",
+    "goal": "Apply Superpowers spec-driven TDD by writing a focused failing test before production changes, confirming the RED failure, then implementing the smallest change that makes it GREEN.",
+    "skillMapping": ["superpowers:test-driven-development"],
+    "artifactEvidence": ["RED test output", "GREEN test output", "Regression test committed with the behavior"],
+    "failurePrevented": ["Coding agents write code first and later add tests that only mirror the implementation."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "First write a failing test for rejected malformed records or schema drift, verify the failure, then implement the minimal pipeline behavior."
+    },
+    "inputs": ["Single planned behavior", "Test command", "Expected failure mode"],
+    "outputs": ["Failing-first test", "Minimal passing implementation", "Refactored code that stays green"],
+    "antipatterns": ["Accepting syntax errors as RED", "Adding broad abstractions before a test requires them"],
+    "doneCriteria": ["The test failed for the expected reason before implementation and passes after the minimal change."]
   },
   {
     "slug": "systematic-debugging",
-    "title": "Phase 6 - Systematic Debugging",
+    "title": "Systematic Debugging",
     "kicker": "Diagnose before fixing",
-    "goal": "Apply root-cause diagnosis for failures in data quality, permissions, lineage, cost/performance, and orchestration.",
-    "inputs": [
-      "A reproducible failure from tests, jobs, quality checks, or serving behavior",
-      "Observed evidence such as assertion output, job logs, query plans, or permission errors",
-      "The relevant spec requirement that should have been satisfied"
-    ],
-    "outputs": [
-      "Failure statement that separates symptoms from likely causes",
-      "Minimal reproduction or focused test that catches the issue",
-      "Fix verified against the original evidence"
-    ],
-    "antipatterns": [
-      "Changing cluster settings, SQL, and code at the same time without isolating cause",
-      "Treating a rerun success as proof that a flaky pipeline is fixed",
-      "Debugging from guesses while ignoring the spec and test output"
-    ],
-    "doneCriteria": [
-      "The root cause is explained with evidence",
-      "The fix is covered by a test or repeatable verification command",
-      "No unrelated behavior was changed while debugging"
-    ]
+    "goal": "Use Superpowers spec-driven systematic debugging to reproduce failures, gather evidence, isolate root cause, and verify the fix against the original symptom.",
+    "skillMapping": ["superpowers:systematic-debugging"],
+    "artifactEvidence": ["Failure statement", "Minimal reproduction", "Verified root-cause fix"],
+    "failurePrevented": ["Coding agents guess at changes and accidentally mask the real issue."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "When duplicate records appear, reproduce the case, inspect idempotency keys and retry logs, then add a targeted test before changing pipeline logic."
+    },
+    "inputs": ["Reproducible failure", "Logs or test output", "Relevant spec requirement"],
+    "outputs": ["Root cause with evidence", "Focused regression coverage", "Verified correction"],
+    "antipatterns": ["Changing multiple variables at once", "Calling a rerun success a fix for a flaky failure"],
+    "doneCriteria": ["The root cause is explained with evidence and the original failure path is verified fixed."]
   },
   {
     "slug": "code-review",
-    "title": "Phase 7 - Code Review",
-    "kicker": "Use review to enforce the contract",
-    "goal": "Use requesting and receiving review workflows to enforce correctness, maintainability, and spec alignment.",
-    "inputs": [
-      "Scoped diff, tests, and implementation plan requirements",
-      "Spec sections that define expected Databricks behavior",
-      "Known risks such as governance gaps, brittle paths, or untested transformations"
-    ],
-    "outputs": [
-      "Review request that explains intent, scope, and verification evidence",
-      "Findings prioritized by correctness, regression risk, and missing tests",
-      "Disposition for each review item before merge"
-    ],
-    "antipatterns": [
-      "Reviewing for style while missing spec violations",
-      "Accepting unclear feedback without checking whether it is technically valid",
-      "Expanding the PR to include artifact viewer or simulation work during review"
-    ],
-    "doneCriteria": [
-      "Reviewers can map changes back to the implementation plan",
-      "High-severity findings are fixed or explicitly deferred with rationale",
-      "Tests and manual evidence are included with the review context"
-    ]
+    "title": "Code Review",
+    "kicker": "Review against the contract",
+    "goal": "Use Superpowers spec-driven review workflows to request and receive rigorous feedback focused on correctness, regression risk, spec alignment, and missing tests.",
+    "skillMapping": ["superpowers:requesting-code-review", "superpowers:receiving-code-review"],
+    "artifactEvidence": ["Review request with scope and evidence", "Findings prioritized by severity", "Disposition for each finding"],
+    "failurePrevented": ["Coding agents treat review as style feedback and miss behavioral or verification gaps."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "Ask reviewers to check schema handling, retry semantics, observability, and test coverage against the ingestion-pipeline specification."
+    },
+    "inputs": ["Scoped diff", "Specification", "Fresh test output"],
+    "outputs": ["Actionable review findings", "Accepted or rejected feedback with rationale", "Updated tests or code where needed"],
+    "antipatterns": ["Blindly applying unclear feedback", "Reviewing formatting while ignoring missing failure cases"],
+    "doneCriteria": ["High-severity findings are fixed or explicitly deferred with technical rationale."]
   },
   {
     "slug": "verification",
-    "title": "Phase 8 - Verification",
+    "title": "Verification",
     "kicker": "Evidence before claims",
-    "goal": "Validate end-to-end behavior against documented SLAs, governance requirements, and test evidence.",
-    "inputs": [
-      "Specification acceptance criteria and implementation plan checklist",
-      "Fresh test output, rendered page checks, and review dispositions",
-      "Known deployment constraints such as GitHub Pages relative paths"
-    ],
-    "outputs": [
-      "Verification report with commands, results, and residual risks",
-      "Evidence that phase pages load structured JSON content correctly",
-      "Decision on whether the work is ready to commit or needs follow-up"
-    ],
-    "antipatterns": [
-      "Saying tests should pass without running them freshly",
-      "Using one passing unit test as proof that all navigation still works",
-      "Ignoring warnings or unrelated failures in verification output"
-    ],
-    "doneCriteria": [
-      "Required commands pass with current output",
-      "Every Task 3 requirement has been checked directly",
-      "Any remaining concern is reported explicitly instead of hidden"
-    ]
+    "goal": "Use Superpowers spec-driven verification to run fresh commands, read outputs, check requirements directly, and only then report what is passing or incomplete.",
+    "skillMapping": ["superpowers:verification-before-completion"],
+    "artifactEvidence": ["Fresh command output", "Requirement checklist", "Residual risk notes"],
+    "failurePrevented": ["Coding agents say the work should pass without current evidence."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "Run unit, integration, and representative end-to-end checks for the pipeline, then report exact pass/fail counts and unresolved risks."
+    },
+    "inputs": ["Implementation diff", "Acceptance criteria", "Verification commands"],
+    "outputs": ["Verified test results", "Requirement-by-requirement status", "Accurate completion summary"],
+    "antipatterns": ["Relying on earlier test output", "Ignoring warnings or partial failures"],
+    "doneCriteria": ["Every completion claim is backed by fresh command output or explicitly marked unverified."]
   },
   {
     "slug": "completion",
-    "title": "Phase 9 - Completion",
-    "kicker": "Package the work without loose ends",
-    "goal": "Finalize branch strategy, PR readiness, release notes, and environment cleanup after verification.",
-    "inputs": [
-      "Passing verification evidence and reviewed diff",
-      "Commit message and exact list of changed files",
-      "Awareness of unrelated untracked or modified files that should remain untouched"
-    ],
-    "outputs": [
-      "Scoped commit for the completed task",
-      "Status summary with failing-then-passing test evidence",
-      "Clear next-step options for PR, merge, or continued task work"
-    ],
-    "antipatterns": [
-      "Committing unrelated plan files or local artifacts",
-      "Marking work complete before tests are rerun after final edits",
-      "Leaving the team unclear about what changed and what did not"
-    ],
-    "doneCriteria": [
-      "The commit contains only Task 3 files",
-      "The requested status, test summary, commit hash, and files changed are reported",
-      "No later tasks are implemented by accident"
-    ]
+    "title": "Branch Completion",
+    "kicker": "Package the work cleanly",
+    "goal": "Use Superpowers spec-driven branch completion to commit only scoped changes, report exact verification evidence, and prepare the branch for PR, merge, or follow-on tasks.",
+    "skillMapping": ["superpowers:finishing-a-development-branch"],
+    "artifactEvidence": ["Scoped commit", "Changed-file list", "Red/green verification summary"],
+    "failurePrevented": ["Coding agents commit unrelated files or claim completion without a traceable diff and test record."],
+    "example": {
+      "task": "Need to build an ingestion pipeline",
+      "superpowersMove": "After verification, commit only the pipeline files, include the requested message, and report the hash plus exact tests run."
+    },
+    "inputs": ["Passing verification", "Reviewed diff", "Commit message"],
+    "outputs": ["Task-scoped commit", "Status summary", "Next-step options"],
+    "antipatterns": ["Committing local artifacts", "Mixing the next task into the completion commit"],
+    "doneCriteria": ["The branch contains a scoped commit with exact changed files, test evidence, and no unrelated edits."]
   }
 ]

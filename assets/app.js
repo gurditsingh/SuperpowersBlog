@@ -65,32 +65,197 @@
     }).join('') + '</dl>';
   }
 
-  function renderPhaseSection(title, items) {
+  function renderPhaseSection(title, items, className) {
+    var sectionClass = className ? 'phase-section ' + className : 'phase-section';
     return (
-      '<section class="phase-section">' +
+      '<section class="' + escapeHtml(sectionClass) + '">' +
       '<h2>' + escapeHtml(title) + '</h2>' +
-      renderList(items) +
+      renderList(items || []) +
+      '</section>'
+    );
+  }
+
+  function renderPhaseExample(example) {
+    var phaseExample = example || {};
+    return (
+      '<section class="phase-section phase-section--example">' +
+      '<h2>Example: ingestion pipeline</h2>' +
+      '<p><strong>Task:</strong> ' + escapeHtml(phaseExample.task || '') + '</p>' +
+      '<p><strong>Superpowers move:</strong> ' + escapeHtml(phaseExample.superpowersMove || '') + '</p>' +
       '</section>'
     );
   }
 
   function renderNavigation(options) {
     var links = buildNavigationLinks(options.pages, options.base, options.currentPath);
-    var pageLabel = options.pageLabel || 'Superpowers Blog';
-    var navMarkup = links
-      .map(function (link) {
-        var currentAttr = link.isCurrent ? ' aria-current="page"' : '';
-        return '<a href="' + escapeHtml(link.href) + '"' + currentAttr + '>' + escapeHtml(link.label) + '</a>';
+    var primaryOrder = ['home', 'simulation', 'artifacts'];
+    var primaryLinks = primaryOrder
+      .map(function (id) {
+        return links.find(function (link, index) {
+          return options.pages[index].id === id;
+        });
       })
-      .join('');
+      .filter(Boolean);
+    var lifecycleLinks = links.filter(function (link, index) {
+      return stripLeadingDotSlash(options.pages[index].path).indexOf('phases/') === 0;
+    });
+    var homeLink = primaryLinks[0] || links[0];
+
+    function renderNavLinks(navLinks) {
+      return navLinks
+        .map(function (link) {
+          var currentAttr = link.isCurrent ? ' aria-current="page"' : '';
+          return '<a href="' + escapeHtml(link.href) + '"' + currentAttr + '>' + escapeHtml(link.label) + '</a>';
+        })
+        .join('');
+    }
+
+    var primaryMarkup = renderNavLinks(primaryLinks);
+    var lifecycleMarkup = renderNavLinks(lifecycleLinks);
 
     return (
-      '<div class="site-shell">' +
-      '<nav class="site-nav" aria-label="Primary">' + navMarkup + '</nav>' +
-      '<h1 class="page-title">' + escapeHtml(pageLabel) + '</h1>' +
-      '<p class="page-subtitle">Spec-driven blog work in progress.</p>' +
+      '<div class="app-shell" data-app-shell>' +
+      '<button class="drawer-toggle" type="button" data-drawer-toggle aria-controls="site-navigation" aria-expanded="false">Menu</button>' +
+      '<div class="drawer-backdrop" data-drawer-backdrop hidden></div>' +
+      '<aside class="sidebar" id="site-navigation" data-sidebar>' +
+      '<a class="brand-mark" href="' + escapeHtml(homeLink.href) + '">SuperpowersBlog</a>' +
+      '<nav class="sidebar-nav" aria-label="Primary">' + primaryMarkup + '</nav>' +
+      '<nav class="sidebar-nav sidebar-nav--lifecycle" aria-label="Lifecycle">' + lifecycleMarkup + '</nav>' +
+      '</aside>' +
       '</div>'
     );
+  }
+
+  function bootstrapDrawer(doc) {
+    var rootDocument = doc || document;
+    var toggle = rootDocument.querySelector('[data-drawer-toggle]');
+    var shell = rootDocument.querySelector('[data-app-shell]');
+    var backdrop = rootDocument.querySelector('[data-drawer-backdrop]');
+    var sidebar = rootDocument.querySelector('[data-sidebar]');
+    var mainContent = rootDocument.querySelector('#main-content');
+    var skipLink = rootDocument.querySelector('.skip-link');
+
+    if (!toggle || !shell || !backdrop || !sidebar) {
+      return false;
+    }
+
+    var previouslyFocusedElement = null;
+    var mobileQuery = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(max-width: 860px)')
+      : null;
+
+    function isMobile() {
+      return mobileQuery ? mobileQuery.matches : false;
+    }
+
+    function updateSidebarInteractivity(isOpen) {
+      if (isMobile() && !isOpen) {
+        sidebar.setAttribute('inert', '');
+        sidebar.setAttribute('aria-hidden', 'true');
+        return;
+      }
+
+      sidebar.removeAttribute('inert');
+      sidebar.setAttribute('aria-hidden', 'false');
+    }
+
+    function updatePageInteractivity(isOpen) {
+      if (isMobile() && isOpen) {
+        if (mainContent) {
+          mainContent.setAttribute('inert', '');
+          mainContent.setAttribute('aria-hidden', 'true');
+        }
+        if (skipLink) {
+          skipLink.setAttribute('inert', '');
+          skipLink.setAttribute('aria-hidden', 'true');
+        }
+        return;
+      }
+
+      if (mainContent) {
+        mainContent.removeAttribute('inert');
+        mainContent.setAttribute('aria-hidden', 'false');
+      }
+      if (skipLink) {
+        skipLink.removeAttribute('inert');
+        skipLink.setAttribute('aria-hidden', 'false');
+      }
+    }
+
+    function focusFirstDrawerItem() {
+      if (typeof sidebar.querySelector !== 'function') {
+        if (typeof sidebar.focus === 'function') {
+          sidebar.focus();
+        }
+        return;
+      }
+
+      var firstFocusable = sidebar.querySelector('a, button, [tabindex]:not([tabindex="-1"])');
+      if (firstFocusable && typeof firstFocusable.focus === 'function') {
+        firstFocusable.focus();
+      } else if (typeof sidebar.focus === 'function') {
+        sidebar.focus();
+      }
+    }
+
+    function setOpen(isOpen) {
+      var wasOpen = toggle.getAttribute('aria-expanded') === 'true';
+      if (isOpen && !wasOpen && rootDocument.activeElement) {
+        previouslyFocusedElement = rootDocument.activeElement;
+      }
+
+      shell.setAttribute('data-drawer-open', String(isOpen));
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      backdrop.hidden = !isOpen;
+      updateSidebarInteractivity(isOpen);
+      updatePageInteractivity(isOpen);
+
+      if (isOpen && isMobile()) {
+        focusFirstDrawerItem();
+      }
+
+      if (!isOpen && wasOpen && previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
+        previouslyFocusedElement.focus();
+        previouslyFocusedElement = null;
+      }
+    }
+
+    function syncViewportState() {
+      if (!isMobile()) {
+        setOpen(false);
+        updateSidebarInteractivity(true);
+        updatePageInteractivity(false);
+        return;
+      }
+
+      var isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      updateSidebarInteractivity(isOpen);
+      updatePageInteractivity(isOpen);
+    }
+
+    toggle.addEventListener('click', function () {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+    backdrop.addEventListener('click', function () {
+      setOpen(false);
+    });
+    if (typeof rootDocument.addEventListener === 'function') {
+      rootDocument.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+          setOpen(false);
+        }
+      });
+    }
+
+    if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
+      mobileQuery.addEventListener('change', syncViewportState);
+    } else if (mobileQuery && typeof mobileQuery.addListener === 'function') {
+      mobileQuery.addListener(syncViewportState);
+    }
+
+    syncViewportState();
+
+    return true;
   }
 
   function renderPhasePage(phase) {
@@ -99,11 +264,17 @@
       '<p class="phase-kicker">' + escapeHtml(phase.kicker || 'Superpowers phase') + '</p>' +
       '<h1 class="phase-title">' + escapeHtml(phase.title) + '</h1>' +
       '<p class="phase-goal">' + escapeHtml(phase.goal) + '</p>' +
-      '<div class="phase-grid">' +
-      renderPhaseSection('Inputs', phase.inputs || []) +
-      renderPhaseSection('Outputs', phase.outputs || []) +
-      renderPhaseSection('Antipatterns', phase.antipatterns || []) +
-      renderPhaseSection('Done Criteria', phase.doneCriteria || []) +
+      '<div class="phase-grid phase-grid--primary">' +
+      renderPhaseSection('Superpowers skill', phase.skillMapping || [], 'phase-section--primary') +
+      renderPhaseSection('Artifact / evidence', phase.artifactEvidence || [], 'phase-section--primary') +
+      renderPhaseSection('Failure prevented', phase.failurePrevented || [], 'phase-section--primary') +
+      renderPhaseExample(phase.example) +
+      '</div>' +
+      '<div class="phase-grid phase-grid--secondary">' +
+      renderPhaseSection('Inputs', phase.inputs || [], 'phase-section--secondary') +
+      renderPhaseSection('Outputs', phase.outputs || [], 'phase-section--secondary') +
+      renderPhaseSection('Antipatterns', phase.antipatterns || [], 'phase-section--secondary') +
+      renderPhaseSection('Done Criteria', phase.doneCriteria || [], 'phase-section--secondary') +
       '</div>' +
       '</article>'
     );
@@ -134,20 +305,20 @@
     var flow = scenario.dataFlow || scenario.flow || [];
     return (
       '<article class="site-shell phase-page artifacts-page">' +
-      '<p class="phase-kicker">Databricks sample scenario</p>' +
-      '<h1 class="phase-title">' + escapeHtml(scenario.title) + '</h1>' +
+      '<p class="phase-kicker">Superpowers sample package</p>' +
+      '<h1 class="phase-title">' + escapeHtml(artifacts.title || scenario.title) + '</h1>' +
       '<p class="phase-goal">' + escapeHtml(scenario.summary) + '</p>' +
       '<section class="phase-section">' +
-      '<h2>Scenario</h2>' +
+      '<h2>' + escapeHtml(scenario.title || 'Sample Project') + '</h2>' +
       '<p>' + escapeHtml(scenario.businessGoal || '') + '</p>' +
       renderList(flow) +
       '</section>' +
       '<section class="phase-section">' +
-      '<h2>Databricks Components</h2>' +
+      '<h2>Databricks Example Components</h2>' +
       renderScenarioComponents(scenario.components || []) +
       '</section>' +
       '<section class="phase-section">' +
-      '<h2>' + escapeHtml(artifacts.title || 'Sample spec package') + '</h2>' +
+      '<h2>Lifecycle Evidence</h2>' +
       '<p>' + escapeHtml(artifacts.summary || '') + '</p>' +
       '</section>' +
       (artifacts.sections || []).map(renderArtifactSection).join('') +
@@ -168,7 +339,7 @@
     return (
       '<article class="site-shell phase-page phase-page--fallback">' +
       '<h1 class="phase-title">Artifacts unavailable</h1>' +
-      '<p class="phase-goal">The Databricks scenario and sample spec package could not be loaded. Try refreshing the page.</p>' +
+      '<p class="phase-goal">The Superpowers sample package could not be loaded. Try refreshing the page.</p>' +
       '</article>'
     );
   }
@@ -203,7 +374,7 @@
           slaRisk: strictHighControl ? 'Low' : 'Medium',
           qualityIncidents: strictHighControl ? 1 : 2
         },
-        summary: 'Discovery, Specification, Planning, TDD, and Verification keep Delta contracts, Unity Catalog grants, and Databricks SQL acceptance checks aligned before release.'
+        summary: 'Superpowers Brainstorm / Design, Specification, Planning, TDD, and Verification keep Delta contracts, Unity Catalog grants, and Databricks SQL acceptance checks aligned before release.'
       },
       withoutSuperpowers: {
         label: 'Without specification discipline',
@@ -212,7 +383,7 @@
           slaRisk: strictHighControl ? 'High' : 'Medium-high',
           qualityIncidents: strictHighControl ? 7 : 5
         },
-        summary: 'Teams optimize ingestion cost first, then discover dashboard reconciliation gaps after malformed receipt fields have already reached shared analytics surfaces.'
+        summary: 'Teams optimize the Databricks ingestion example first, then discover dashboard reconciliation gaps after malformed receipt fields have already reached shared analytics surfaces.'
       }
     };
   }
@@ -231,10 +402,11 @@
 
     return [
       {
-        id: 'discovery-output-summary',
-        title: 'Discovery output summary',
+        id: 'brainstorm-design-output-summary',
+        title: 'Brainstorm / Design output summary',
         items: [
-          'Finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse.',
+          'Superpowers output: the vague coding-agent request is reframed as a spec-driven ingestion pipeline sample before Databricks details are chosen.',
+          'Sample project context: finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse.',
           'Success means trusted Delta Lake tables, Databricks SQL reconciliation, and Lakebase lookup behavior are defined before build.',
           'Chosen scenario profile: ' + deliveryProfile + '.'
         ]
@@ -243,6 +415,7 @@
         id: 'spec-boundary-choices',
         title: 'Spec boundary choices',
         items: [
+          'Superpowers output: spec-driven boundaries separate lifecycle evidence from the Databricks ingestion pipeline implementation example.',
           'In scope: bronze receipt ingestion, silver validation, gold reporting marts, Unity Catalog access rules, and Lakebase serving sync.',
           'Out of scope: loyalty personalization, refunds workflow automation, and non-receipt customer 360 expansion.',
           'Acceptance boundaries cover schema drift, quarantine behavior, freshness budgets, lineage, and dashboard reconciliation.'
@@ -252,6 +425,7 @@
         id: 'task-plan-breakdown',
         title: 'Task plan breakdown',
         items: [
+          'Superpowers output: convert the approved spec into ordered tasks with quality gates before editing the Databricks sample.',
           'Create Delta Lake contracts and fixtures before transformation work.',
           'Implement ingestion, validation, governance, SQL dashboard, and Lakebase sync tasks in dependency order.',
           'Attach every task to at least one test, review checkpoint, or verification command.'
@@ -261,6 +435,7 @@
         id: 'test-first-sequence',
         title: 'Test-first sequence',
         items: [
+          'Superpowers output: prove ingestion pipeline behavior with failing tests before implementation changes.',
           'RED: malformed receipts are quarantined before silver promotion.',
           'GREEN: validation logic writes accepted and rejected records to the expected Delta paths.',
           'REFACTOR: keep quality rules readable while preserving Databricks SQL acceptance checks.'
@@ -270,6 +445,7 @@
         id: 'debugging-path',
         title: 'Debugging path',
         items: [
+          'Superpowers output: debug from observed evidence instead of guessing at Databricks fixes.',
           'Reproduce dashboard reconciliation drift with a focused receipt fixture.',
           'Inspect Delta quality results, Unity Catalog lineage, and Lakebase sync timing separately.',
           'Fix the proven root cause only, then rerun the failing test and workflow verification.'
@@ -279,6 +455,7 @@
         id: 'review-findings-snapshot',
         title: 'Review findings snapshot',
         items: [
+          'Superpowers output: review findings are tied to spec commitments, tests, and residual ingestion pipeline risks.',
           'High: reject schema drift before shared Databricks SQL surfaces consume receipt totals.',
           'Medium: document Unity Catalog grant review ownership before broad dashboard rollout.',
           'Low: keep sample artifact links relative for GitHub Pages deployment.'
@@ -288,6 +465,7 @@
         id: 'verification-outcome-report',
         title: 'Verification outcome report',
         items: [
+          'Superpowers output: completion requires fresh verification evidence before the Databricks sample package is signed off.',
           'Status: ' + (warnings.length ? 'PASS_WITH_WARNINGS' : 'PASS') + '.',
           'Checks cover freshness, quarantine rate, dashboard reconciliation, lineage, and Lakebase synchronization.',
           warnings.length ? 'Residual warnings: ' + warnings.join(' ') : 'No residual warnings for the selected deterministic profile.'
@@ -318,7 +496,7 @@
       input: normalized,
       scenario: {
         id: 'retail-receipts-databricks',
-        title: 'Retail receipts to analytics on Databricks',
+        title: 'Superpowers sample output for a Databricks ingestion pipeline',
         concepts: [
           scenarioConcepts.lakehouse,
           scenarioConcepts.storage,
@@ -330,33 +508,33 @@
       phases: [
         {
           id: 'fundamentals',
-          title: 'Fundamentals',
-          output: 'Anchor the team on spec-driven development: discovery precedes specification, tests precede implementation, and verification precedes completion claims.',
+          title: 'Brainstorm / Design',
+          output: 'Turn the vague request to build an ingestion pipeline into clear users, goals, assumptions, risks, and success criteria before Databricks details are chosen.',
           concepts: [scenarioConcepts.lakehouse]
         },
         {
           id: 'discovery',
-          title: 'Discovery',
-          output: 'Confirm finance, merchandising, and support need governed receipt analytics plus operational lookup on the Data Lakehouse.',
+          title: 'Specification',
+          output: 'Write the contract for receipt schemas, quality thresholds, lineage, access rules, SLA targets, and dashboard acceptance checks.',
           concepts: [scenarioConcepts.lakehouse, scenarioConcepts.analytics]
         },
         {
           id: 'specification',
-          title: 'Specification',
-          output: 'Lock receipt schemas, quality thresholds, lineage expectations, access rules, SLA targets, and dashboard acceptance checks before planning work.',
-          concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.analytics]
+          title: 'Workspace Isolation',
+          output: 'Create an isolated Git workspace for the approved sample so lifecycle edits stay scoped, reviewable, and safe to abandon if the approach is wrong.',
+          concepts: [scenarioConcepts.lakehouse]
         },
         {
           id: 'implementation-planning',
           title: 'Implementation Planning',
-          output: 'Break the specification into ordered ingestion, validation, governance, SQL analytics, and Lakebase serving tasks.',
+          output: 'Break the Superpowers specification into ordered ingestion pipeline tasks for validation, governance, SQL analytics, and Lakebase serving.',
           concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.serving]
         },
         {
           id: 'workspace-setup',
-          title: 'Environment and Workspace Setup',
-          output: 'Confirm repository state, preserve relative GitHub Pages paths, and isolate scoped changes before implementation begins.',
-          concepts: [scenarioConcepts.lakehouse]
+          title: 'Execution',
+          output: 'Implement the approved plan in small increments, keeping each Databricks sample change tied to the spec, tests, and review evidence.',
+          concepts: [scenarioConcepts.storage, scenarioConcepts.governance, scenarioConcepts.analytics, scenarioConcepts.serving]
         },
         {
           id: 'tdd',
@@ -384,7 +562,7 @@
         },
         {
           id: 'completion',
-          title: 'Completion',
+          title: 'Branch Completion',
           output: 'Package the branch with a scoped commit, passing test evidence, review disposition, changed files, and next-step status.',
           concepts: [scenarioConcepts.lakehouse]
         }
@@ -663,6 +841,7 @@
           currentPath: currentPath,
           pageLabel: pageLabel
         });
+        bootstrapDrawer(doc);
         navRoot.setAttribute('data-nav-bootstrapped', 'true');
         return true;
       });
@@ -742,6 +921,7 @@
     currentPathFromLocation: currentPathFromLocation,
     normalizeBasePrefix: normalizeBasePrefix,
     renderNavigation: renderNavigation,
+    bootstrapDrawer: bootstrapDrawer,
     renderArtifactsPage: renderArtifactsPage,
     renderSimulationResult: renderSimulationResult,
     getSimulationStepperState: getSimulationStepperState,
