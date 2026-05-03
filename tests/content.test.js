@@ -391,6 +391,46 @@ test('homepage presents the Superpowers lifecycle landing page', () => {
   assert.doesNotMatch(html, /Databricks end-to-end data platform delivery/);
 });
 
+test('about page presents the author profile and GitHub CTA', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'about.html'), 'utf8');
+
+  assert.match(html, /About the Author/i);
+  assert.match(html, /Data Architect/i);
+  assert.match(html, /Technology Architect/i);
+  assert.match(html, /12 years of experience/i);
+  assert.match(html, /enterprise data engineering/i);
+  assert.match(html, /cloud migration/i);
+  assert.match(html, /modern data platform design/i);
+  assert.match(html, /Data Architecture &amp; Platform Design/);
+  assert.match(html, /Cloud Data Engineering/);
+  assert.match(html, /ETL Modernization/);
+  assert.match(html, /Big Data &amp; PySpark/);
+  assert.match(html, /Databricks &amp; Lakehouse/);
+  assert.match(html, /Data Migration/);
+  assert.match(html, /Data Quality &amp; Validation/);
+  assert.match(html, /Orchestration &amp; Operations/);
+  assert.match(html, /Database &amp; SQL Expertise/);
+  assert.match(html, /AI Engineering/);
+  assert.match(html, /AWS/);
+  assert.match(html, /Azure/);
+  assert.match(html, /Snowflake/);
+  assert.match(html, /Oracle/);
+  assert.match(html, /SQL Server/);
+  assert.match(html, /Java/);
+  assert.match(html, /Scala/);
+  assert.match(html, /Python/);
+  assert.match(html, /AI agents/);
+  assert.match(html, /reusable skills/);
+  assert.match(html, /MCP servers/);
+  assert.match(html, /semantic layers/);
+  assert.match(html, /AI-driven data engineering workflows/);
+  assert.match(html, /href="https:\/\/github\.com\/gurditsingh"/);
+  assert.match(html, /View GitHub work/i);
+  assert.match(html, /id="main-content"/);
+  assert.match(html, /data-nav-root/);
+  assert.match(html, /data-page-label="About"/);
+});
+
 test('simulation page exposes an accessible live output region', () => {
   const html = fs.readFileSync(path.join(ROOT, 'simulation.html'), 'utf8');
 
