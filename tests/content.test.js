@@ -397,6 +397,7 @@ test('about page presents the author profile and GitHub CTA', () => {
   const platformSection = /<section class=["']phase-grid about-platform-grid["'][\s\S]*?aria-label=["']Platform experience groups["']>([\s\S]*?)<\/section>/.exec(html)?.[1] || '';
 
   assert.match(html, /About the Author/i);
+  assert.match(html, /<h1 class=["']phase-title["']>Gurdit Singh<\/h1>/);
   assert.match(html, /Data Architect/i);
   assert.match(html, /Technology Architect/i);
   assert.match(html, /12 years of experience/i);
