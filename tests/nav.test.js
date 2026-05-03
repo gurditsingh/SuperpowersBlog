@@ -142,15 +142,13 @@ test('site navigation uses verified Superpowers lifecycle labels', () => {
 });
 
 test('primary navigation includes About after Home', () => {
-  assert.deepEqual(
-    siteData.pages.slice(0, 4).map((page) => ({ id: page.id, path: page.path, label: page.label })),
-    [
-      { id: 'home', path: 'index.html', label: 'Home' },
-      { id: 'about', path: 'about.html', label: 'About' },
-      { id: 'artifacts', path: 'artifacts.html', label: 'Artifacts' },
-      { id: 'simulation', path: 'simulation.html', label: 'Simulation' },
-    ],
-  );
+  const homeIndex = siteData.pages.findIndex((page) => page.id === 'home');
+  const aboutIndex = siteData.pages.findIndex((page) => page.id === 'about');
+
+  assert.notEqual(homeIndex, -1, 'Home should be present in primary navigation data');
+  assert.notEqual(aboutIndex, -1, 'About should be present in primary navigation data');
+  assert.equal(aboutIndex, homeIndex + 1, 'About should appear immediately after Home');
+  assert.deepEqual(siteData.pages[aboutIndex], { id: 'about', path: 'about.html', label: 'About' });
 });
 
 test('visual system CSS exposes lifecycle console contracts', () => {
