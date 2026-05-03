@@ -32,6 +32,7 @@ Primary positioning:
 - Enterprise data engineering, cloud migration, and modern data platform design.
 - Experience with ETL frameworks, lakehouse solutions, cloud-native data pipelines, migration strategies, big data ecosystems, and open table formats.
 - AI Engineering included as a current capability area.
+- Future-ready solution design around AI agents, reusable skills, MCP servers, semantic layers, and AI-driven data engineering workflows.
 
 The page should mention Databricks as one platform within the author's broader architecture background, not as the main subject of the site.
 
@@ -48,6 +49,7 @@ A short paragraph covering:
 - Data engineering and cloud migration.
 - Modern data platforms and scalable ETL.
 - Practical focus on reliable, governed, production-ready delivery.
+- Future-ready architecture patterns that connect data platforms with AI agents, reusable skills, MCP servers, semantic layers, and AI-driven data engineering workflows.
 
 ### Capability Grid
 Show the high-level experience points as scan-friendly cards or chips:
@@ -65,12 +67,18 @@ Show the high-level experience points as scan-friendly cards or chips:
 ### Platform Experience
 Include a concise platform list:
 - AWS
+- Azure
 - Databricks
 - Snowflake
 - Oracle
 - SQL Server
+- Java
+- Scala
+- Python
 - Big data ecosystems
 - Open table formats
+
+The implementation should group this section so cloud/platform experience, database/data-platform experience, programming languages, and emerging AI engineering architecture are easy to scan without becoming a dense resume.
 
 ### GitHub CTA
 Add a small CTA section that sends readers to GitHub/project work.
