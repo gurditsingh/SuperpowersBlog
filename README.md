@@ -4,7 +4,7 @@ Interactive blog project for Superpowers spec-driven development.
 
 ## Purpose
 
-A static GitHub Pages site that explains and demonstrates Superpowers workflows through an end-to-end Databricks scenario.
+A static GitHub Pages site that explains Superpowers spec-driven development for coding agents. Databricks appears as a sample ingestion-pipeline project used to illustrate each Superpowers lifecycle stage.
 
 ## Local Verification
 

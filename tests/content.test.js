@@ -306,6 +306,24 @@ test('scenario summary frames Databricks as a Superpowers sample project', () =>
   assert.doesNotMatch(scenario.summary, /end-to-end Databricks platform/i);
 });
 
+test('scenario simulation defaults use the verified Superpowers lifecycle', () => {
+  const scenario = readJson(SCENARIO_PATH);
+  const lifecyclePages = siteData.pages.filter((page) => page.path.startsWith('phases/'));
+
+  assert.deepEqual(
+    scenario.simulationDefaults.phases.map((phase) => phase.id),
+    lifecyclePages.map((page) => page.id),
+  );
+  assert.deepEqual(
+    scenario.simulationDefaults.phases.map((phase) => phase.label),
+    lifecyclePages.map((page) => page.label),
+  );
+  assert.doesNotMatch(
+    scenario.simulationDefaults.phases.map((phase) => `${phase.label} ${phase.focus}`).join(' '),
+    /Discovery|Environment and Workspace Setup|\bFundamentals\b/i,
+  );
+});
+
 test('artifact package is framed as Superpowers lifecycle evidence', () => {
   const artifacts = readJson(ARTIFACTS_PATH);
   const sectionText = collectText(artifacts.sections);
@@ -371,4 +389,14 @@ test('homepage presents the Superpowers lifecycle landing page', () => {
   assert.match(html, /View Full Sample Spec Package/);
   assert.match(html, /href=["']\.\/simulation\.html["']/);
   assert.doesNotMatch(html, /Databricks end-to-end data platform delivery/);
+});
+
+test('simulation page exposes an accessible live output region', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'simulation.html'), 'utf8');
+
+  assert.match(html, /data-simulation-result/);
+  assert.match(html, /role=["']region["']/);
+  assert.match(html, /aria-live=["']polite["']/);
+  assert.match(html, /aria-atomic=["']false["']/);
+  assert.match(html, /aria-label=["']Simulation output["']/);
 });

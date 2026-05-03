@@ -54,16 +54,54 @@
     },
     "phases": [
       {
-        "id": "discovery",
-        "focus": "Use Superpowers brainstorming to turn the vague ingestion pipeline request into sample-project goals, users, risks, and success criteria."
+        "id": "fundamentals",
+        "label": "Brainstorm / Design",
+        "focus": "Clarify users, goals, assumptions, risks, and success criteria for the ingestion pipeline sample before Databricks design choices."
       },
       {
-        "id": "plan",
-        "focus": "Plan Delta Lake quality gates, Unity Catalog policy reviews, Databricks SQL dashboards, and Lakebase serving synchronization as governed Superpowers artifacts."
+        "id": "discovery",
+        "label": "Specification",
+        "focus": "Define receipt schemas, quality thresholds, lineage, access rules, SLA targets, and dashboard acceptance checks."
+      },
+      {
+        "id": "specification",
+        "label": "Workspace Isolation",
+        "focus": "Create an isolated Git workspace so the sample remains scoped, reviewable, and safe to abandon."
+      },
+      {
+        "id": "implementation-planning",
+        "label": "Implementation Planning",
+        "focus": "Break the approved specification into ordered, testable work for Delta Lake, Unity Catalog, Databricks SQL, and Lakebase."
+      },
+      {
+        "id": "workspace-setup",
+        "label": "Execution",
+        "focus": "Implement the planned sample increments while preserving links between code, spec decisions, tests, and review evidence."
+      },
+      {
+        "id": "tdd",
+        "label": "Test-Driven Development",
+        "focus": "Write failing tests for quality gates, governance boundaries, dashboard reconciliation, and Lakebase freshness before implementation."
+      },
+      {
+        "id": "systematic-debugging",
+        "label": "Systematic Debugging",
+        "focus": "Diagnose failures through observed evidence, focused hypotheses, and root-cause experiments instead of Databricks guesswork."
+      },
+      {
+        "id": "code-review",
+        "label": "Code Review",
+        "focus": "Review changes against the specification, tests, maintainability expectations, and residual sample-project risks."
       },
       {
         "id": "verification",
-        "focus": "Verify freshness, quarantine rate, reconciliation accuracy, lineage, and serving sync behavior before Superpowers branch completion."
+        "label": "Verification",
+        "focus": "Verify freshness, quarantine rate, reconciliation accuracy, lineage, and serving sync behavior before completion claims."
+      },
+      {
+        "id": "completion",
+        "label": "Branch Completion",
+        "focus": "Package the branch with verification evidence, review disposition, changed files, and merge or pull-request readiness."
       }
     ]
   }
