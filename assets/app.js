@@ -88,7 +88,7 @@
 
   function renderNavigation(options) {
     var links = buildNavigationLinks(options.pages, options.base, options.currentPath);
-    var primaryOrder = ['home', 'simulation', 'artifacts'];
+    var primaryOrder = ['home', 'about', 'artifacts', 'simulation'];
     var primaryLinks = primaryOrder
       .map(function (id) {
         return links.find(function (link, index) {
