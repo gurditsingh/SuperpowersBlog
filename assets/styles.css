@@ -465,7 +465,7 @@ form[data-simulation-form] button {
   box-shadow: inset 0.28rem 0 0 var(--accent-teal);
 }
 
-.simulation-phase-summary[data-phase-status="complete"] {
+.simulation-phase-summary[data-phase-status="completed"] {
   background: rgb(15 127 120 / 8%);
 }
 
