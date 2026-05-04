@@ -327,6 +327,31 @@ button:disabled {
   box-shadow: none;
 }
 
+.about-capability-grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  margin-top: 1rem;
+}
+
+.about-capability-grid span {
+  background: rgb(15 127 120 / 8%);
+  border: 1px solid rgb(15 127 120 / 22%);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 850;
+  padding: 0.62rem 0.82rem;
+}
+
+.about-platform-grid .phase-section {
+  border-top: 4px solid var(--accent-teal);
+}
+
+.about-profile-card {
+  border-top: 4px solid var(--accent-orange);
+}
+
 .phase-map {
   counter-reset: lifecycle;
   list-style: none;

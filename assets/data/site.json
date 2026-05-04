@@ -2,6 +2,7 @@
   "title": "Superpowers Spec-Driven Blog",
   "pages": [
     { "id": "home", "path": "index.html", "label": "Home" },
+    { "id": "about", "path": "about.html", "label": "About" },
     { "id": "artifacts", "path": "artifacts.html", "label": "Artifacts" },
     { "id": "simulation", "path": "simulation.html", "label": "Simulation" },
     { "id": "fundamentals", "path": "phases/fundamentals.html", "label": "Brainstorm / Design" },

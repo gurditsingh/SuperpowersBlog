@@ -391,6 +391,40 @@ test('homepage presents the Superpowers lifecycle landing page', () => {
   assert.doesNotMatch(html, /Databricks end-to-end data platform delivery/);
 });
 
+test('about page presents the author profile and GitHub CTA', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'about.html'), 'utf8');
+  const capabilitySection = /<section class=["']phase-section["'][\s\S]*?<h2>High-Level Experience<\/h2>([\s\S]*?)<\/section>/.exec(html)?.[1] || '';
+  const platformSection = /<section class=["']phase-grid about-platform-grid["'][\s\S]*?aria-label=["']Platform experience groups["']>([\s\S]*?)<\/section>/.exec(html)?.[1] || '';
+
+  assert.match(html, /About the Author/i);
+  assert.match(html, /<h1 class=["']phase-title["']>Gurdit Singh<\/h1>/);
+  assert.match(html, /Data Architect/i);
+  assert.match(html, /Technology Architect/i);
+  assert.match(html, /12 years of experience/i);
+  assert.match(html, /enterprise data engineering/i);
+  assert.match(html, /cloud migration/i);
+  assert.match(html, /modern data platform design/i);
+  assert.match(capabilitySection, /Data Architecture &amp; Platform Design/);
+  assert.match(capabilitySection, /Cloud Data Engineering/);
+  assert.match(capabilitySection, /ETL Modernization/);
+  assert.match(capabilitySection, /Big Data &amp; PySpark/);
+  assert.match(capabilitySection, /Databricks &amp; Lakehouse/);
+  assert.match(capabilitySection, /Data Migration/);
+  assert.match(capabilitySection, /Data Quality &amp; Validation/);
+  assert.match(capabilitySection, /Orchestration &amp; Operations/);
+  assert.match(capabilitySection, /Database &amp; SQL Expertise/);
+  assert.match(capabilitySection, /AI Engineering/);
+  assert.match(platformSection, /Cloud &amp; Lakehouse[\s\S]*AWS[\s\S]*Azure[\s\S]*Snowflake/);
+  assert.match(platformSection, /Engineering Stack[\s\S]*Java[\s\S]*Scala[\s\S]*Python/);
+  assert.match(platformSection, /Database &amp; Operations[\s\S]*Oracle[\s\S]*SQL Server/);
+  assert.match(platformSection, /AI-Ready Architecture[\s\S]*AI agents[\s\S]*reusable skills[\s\S]*MCP servers[\s\S]*semantic layers[\s\S]*AI-driven data engineering workflows/);
+  assert.match(html, /href=["']https:\/\/github\.com\/gurditsingh["']/);
+  assert.match(html, /View GitHub work/i);
+  assert.match(html, /id=["']main-content["']/);
+  assert.match(html, /data-nav-root/);
+  assert.match(html, /data-page-label=["']About["']/);
+});
+
 test('simulation page exposes an accessible live output region', () => {
   const html = fs.readFileSync(path.join(ROOT, 'simulation.html'), 'utf8');
 

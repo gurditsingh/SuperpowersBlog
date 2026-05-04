@@ -64,6 +64,7 @@ function extractCssBlock(source, startPattern) {
 
 const requiredPages = [
   { path: 'index.html', scriptSrc: 'assets/app.js' },
+  { path: 'about.html', scriptSrc: 'assets/app.js' },
   { path: 'artifacts.html', scriptSrc: 'assets/app.js' },
   { path: 'simulation.html', scriptSrc: 'assets/app.js' },
   { path: 'phases/fundamentals.html', scriptSrc: '../assets/app.js' },
@@ -140,6 +141,16 @@ test('site navigation uses verified Superpowers lifecycle labels', () => {
   assert.deepEqual(lifecycleLabels, expectedLifecycle);
 });
 
+test('primary navigation includes About after Home', () => {
+  const homeIndex = siteData.pages.findIndex((page) => page.id === 'home');
+  const aboutIndex = siteData.pages.findIndex((page) => page.id === 'about');
+
+  assert.notEqual(homeIndex, -1, 'Home should be present in primary navigation data');
+  assert.notEqual(aboutIndex, -1, 'About should be present in primary navigation data');
+  assert.equal(aboutIndex, homeIndex + 1, 'About should appear immediately after Home');
+  assert.deepEqual(siteData.pages[aboutIndex], { id: 'about', path: 'about.html', label: 'About' });
+});
+
 test('visual system CSS exposes lifecycle console contracts', () => {
   const css = fs.readFileSync(path.join(ROOT, 'assets/styles.css'), 'utf8');
 
@@ -181,9 +192,22 @@ test('rendered navigation includes aria-current only on the current page', () =>
   });
 
   assert.match(markup, /<a href="\.\.\/index\.html">Home<\/a>/);
+  assert.match(markup, /<a href="\.\.\/about\.html">About<\/a>/);
   assert.match(markup, /<a href="\.\.\/simulation\.html">Simulation<\/a>/);
   assert.match(markup, /<a href="\.\.\/artifacts\.html">Artifacts<\/a>/);
   assert.match(markup, /<a href="\.\.\/phases\/discovery\.html" aria-current="page">Specification<\/a>/);
+  assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
+});
+
+test('rendered navigation marks About current on about page', () => {
+  const markup = renderNavigation({
+    pages: siteData.pages,
+    base: '.',
+    currentPath: 'about.html',
+    pageLabel: 'About',
+  });
+
+  assert.match(markup, /<a href="\.\/about\.html" aria-current="page">About<\/a>/);
   assert.equal(markup.match(/aria-current="page"/g)?.length, 1);
 });
 
